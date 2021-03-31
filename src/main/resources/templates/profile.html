@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h2>Home page</h2>
+<a th:if="${user != null}" href="/logout">
+    <button>Logout</button>
+</a>
+<div th:if="${user != null}" th:inline="text">
+    <p>Email: [[${user?.email}]]</p>
+    <p>First name: [[${user?.name}]]</p>
+    <p>Last name: [[${user?.surname}]]</p>
+    <p>Role: [[${user?.role}]]</p>
+</div>
+</body>
+</html>

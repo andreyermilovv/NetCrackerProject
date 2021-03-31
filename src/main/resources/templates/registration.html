@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+    <style>
+        a {
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<p th:text="${message}" th:if="${message != null}"></p>
+<form id="form-details" action="registration" method="post">
+    <div>
+        <label>
+            <input placeholder="Email" name="email"/>
+        </label>
+    </div>
+    <div>
+        <label>
+            <input type="password" placeholder="Password" name="password"/>
+        </label>
+    </div>
+    <div>
+        <label>
+            <input placeholder="First name" name="name"/>
+        </label>
+    </div>
+    <div>
+        <label>
+            <input placeholder="Last name" name="surname"/>
+        </label>
+    </div>
+    <button type="submit">Register</button>
+</form>
+</body>
+</html>
