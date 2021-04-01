@@ -12,6 +12,7 @@
 </head>
 <body>
 <p th:text="${message}" th:if="${message != null}"></p>
+<p th:each="error : ${errors}" th:text="${error}"></p>
 <form id="form-details" action="registration" method="post">
     <div>
         <label>

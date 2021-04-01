@@ -21,6 +21,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Override
     @SneakyThrows
     protected void configure(HttpSecurity http) {
@@ -34,15 +36,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Override
     @SneakyThrows
     protected void configure(AuthenticationManagerBuilder auth) {
         auth.userDetailsService(userService)
-                .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder);
     }
 }
