@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link th:href="@{//webjars/chosen/chosen.css}" type="text/css" rel="stylesheet">
+</head>
+<body>
+<h2>Airports</h2>
+<a href="/">
+    <button>Back</button>
+</a>
+<p th:text="${message}" th:if="${message != null}"></p>
+<select data-placeholder="Choose a departure airport..."
+        class="chosen-select" id="departure">
+    <option th:each="airport : ${airports}" th:value="${airport.id}"
+            th:text="${airport.name}"></option>
+</select>
+<select data-placeholder="Choose a departure airport..."
+        class="chosen-select" id="destination">
+    <option th:each="airport : ${airports}" th:value="${airport.id}"
+            th:text="${airport.name}"></option>
+</select>
+<input placeholder="Date" name="date" id="date" type="date"/>
+<input placeholder="Time departure" name="timeDeparture" id="timeDeparture" type="time"/>
+<input placeholder="Time arrival" name="timeArrival" id="timeArrival" type="time"/>
+<select data-placeholder="Choose a type..." class="chosen-select" id="status">
+    <option value="">All</option>
+    <option value="UPCOMING">Upcoming</option>
+    <option value="PAST">Past</option>
+    <option value="CANCELLED">Cancelled</option>
+</select>
+<button th:onclick="addFlight()">Add airport</button>
+<table border="1" cellspacing="0" cellpadding="5">
+    <thead>
+    <tr>
+        <th>Name of departure airport</th>
+        <th>Country</th>
+        <th>City</th>
+        <th>Name of destination airport</th>
+        <th>Country</th>
+        <th>City</th>
+        <th>Date</th>
+        <th>Departure time</th>
+        <th>Arrival time</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody class="events">
+    <tr th:each="flight : ${flights}">
+        <td th:text="${flight?.departure?.name}"></td>
+        <td th:text="${flight?.departure?.country}"></td>
+        <td th:text="${flight?.departure?.city}"></td>
+        <td th:text="${flight?.destination?.name}"></td>
+        <td th:text="${flight?.destination?.country}"></td>
+        <td th:text="${flight?.destination?.city}"></td>
+        <td>
+            <input th:value="${flight.date}" th:id="@{'date' + ${flight.id}}"/>
+        </td>
+        <td>
+            <input th:value="${flight.timeDeparture}" th:id="@{'timeDeparture_' + ${flight.id}}"/>
+        </td>
+        <td>
+            <input th:value="${flight.timeArrival}" th:id="@{'timeArrival_' + ${flight.id}}"/>
+        </td>
+        <td>
+            <select data-placeholder="Choose a type..." class="chosen-select"  th:id="@{'status_' + ${flight.id}}">
+                <option value="">All</option>
+                <option th:value="UPCOMING">Upcoming</option>
+                <option th:value="PAST">Past</option>
+                <option th:value="CANCELLED">Cancelled</option>
+            </select>
+        </td>
+        <td><span> <button id="delete" th:onclick="deleteFlight([[${flight.id}]])">Delete</button> </span></td>
+        <td><span> <button id="edit" th:onclick="editFlight([[${flight.id}]])">Edit</button> </span></td>
+    </tr>
+    </tbody>
+</table>
+<script th:src="@{//webjars/jquery/jquery.min.js}"></script>
+<script th:src="@{//webjars/chosen/chosen.jquery.js}"></script>
+<script th:src="@{//webjars/chosen/chosen.proto.js}"></script>
+<script>
+
+    function deleteFlight(id) {
+        $.ajax({
+            type: "DELETE",
+            url: `/api/flights/${id}`,
+            dataType: "json",
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
+
+    function editFlight(id) {
+        $.ajax({
+            type: "PUT",
+            url: `/api/airports/${id}`,
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({date: document.getElementById(`date_${id}`).value,
+                                timeDeparture: document.getElementById(`timeDeparture_${id}`).value,
+                                timeArrival: document.getElementById(`timeArrival_${id}`).value,
+                                status: document.getElementById(`status_${id}`).value}),
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
+
+    function addFlight() {
+        $.ajax({
+            type: "POST",
+            url: `/api/flights`,
+            contentType: "application/json",
+            data: JSON.stringify({departure: document.getElementById(`departure`).value,
+                                    destination: document.getElementById(`destination`).value,
+                                    date: document.getElementById(`date`).value,
+                                    timeDeparture: document.getElementById(`timeDeparture`).value,
+                                    timeArrival: document.getElementById(`timeArrival`).value,
+                                    status: document.getElementById(`status`).value}),
+            error: function (xhr) {
+                alert(xhr.responseJSON.errors);
+            },
+            success: function () {
+                location.reload();
+            }
+        });
+    }
+
+    $(".chosen-select").chosen({
+            width: "20%",
+            no_results_text: "Oops, nothing found!"
+    })
+
+</script>
+</body>
+</html>
