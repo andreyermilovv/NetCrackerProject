@@ -11,12 +11,27 @@
     <button>Back</button>
 </a>
 <p th:text="${message}" th:if="${message != null}"></p>
+<select data-placeholder="Choose a departure airport..."
+        class="chosen-select" id="departure">
+    <option th:each="airport : ${airports}" th:value="${airport.id}"
+            th:text="${airport.name}"></option>
+</select>
+<select data-placeholder="Choose a departure airport..."
+        class="chosen-select" id="destination">
+    <option th:each="airport : ${airports}" th:value="${airport.id}"
+            th:text="${airport.name}"></option>
+</select>
+<input placeholder="Date" name="date" id="date" type="date"/>
+<input placeholder="Time departure" name="timeDeparture" id="timeDeparture" type="time"/>
+<input placeholder="Time arrival" name="timeArrival" id="timeArrival" type="time"/>
 <select data-placeholder="Choose a type..." class="chosen-select" id="status" onchange="filter()" name="status">
     <option value="">All</option>
     <option value="UPCOMING">Upcoming</option>
     <option value="PAST">Past</option>
     <option value="CANCELLED">Cancelled</option>
+    <option value="TEMPLATE">Cancelled</option>
 </select>
+<button th:onclick="addFlight()">Create template</button>
 <table border="1" cellspacing="0" cellpadding="5" class="flights">
     <thead>
     <tr>
@@ -81,7 +96,7 @@
     function editFlight(id) {
         $.ajax({
             type: "PUT",
-            url: `/api/airports/${id}`,
+            url: `/api/flights/${id}`,
             contentType: "application/json",
             dataType: "json",
             data: JSON.stringify({date: document.getElementById(`date_${id}`).value,
@@ -140,35 +155,6 @@
             no_results_text: "Oops, nothing found!"
     })
 
-    function filter() {
-        let status = $("select[name='status']").val();
-        $.ajax({
-            url: `api/flights`,
-            type: "get",
-            data: {
-                status: status,
-            },
-            complete: function (response) {
-                let data = JSON.parse(response.responseText);
-                let table = '<table class="flights">';
-                for (elem of data) {
-                    table += '<tr>';
-                    table += '<td>' + elem.departure.name + '</td>';
-                    table += '<td>' + elem.departure.country + '</td>';
-                    table += '<td>' + elem.departure.city + '</td>';
-                    table += '<td>' + elem.destination.name + '</td>';
-                    table += '<td>' + elem.destination.country + '</td>';
-                    table += '<td>' + elem.destination.city + '</td>';
-                    table += '<td>' + elem.date + '</td>';
-                    table += '<td>' + elem.timeDeparture + '</td>';
-                    table += '<td>' + elem.timeArrival + '</td>';
-                }
-                table += '</table>';
-                let div = '<div><table><tr>';
-                $(".flights").html(table);
-            }
-        });
-    }
 </script>
 </body>
 </html>

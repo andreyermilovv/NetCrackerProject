@@ -49,4 +49,16 @@ public class Flight {
         this.timeArrival = timeArrival;
         this.status = status;
     }
+
+    public Flight(Airport departure,
+                  Airport destination,
+                  LocalDate date,
+                  LocalTime timeDeparture,
+                  LocalTime timeArrival) {
+        this.departure = departure;
+        this.destination = destination;
+        this.date = date;
+        this.timeDeparture = timeDeparture;
+        this.timeArrival = timeArrival;
+    }
 }

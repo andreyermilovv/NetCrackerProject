@@ -9,71 +9,21 @@
 <a href="/">
     <button>Back</button>
 </a>
-<input placeholder="Name" name="name" id="name"/>
-<input placeholder="Country" name="name" id="country"/>
-<input placeholder="City" name="name" id="city"/>
-<button th:onclick="addAirport()">Add airport</button>
 <table border="1" cellspacing="0" cellpadding="5">
     <tbody>
-    <tr th:if="${airports.empty}">
+    <tr th:if="${tickets.empty}">
         <td colspan="2"> No airports</td>
     </tr>
-    <tr th:each="a : ${airports}">
-        <td><span> <button id="button" th:onclick="deleteAirport([[${a.id}]])">Delete</button> </span></td>
+    <tr th:each="ticket : ${tickets}">
         <td>
-            <input th:value="${a.name}" th:id="@{'name_' + ${a.id}}"/>
-            <input th:value="${a.country}" th:id="@{'country_' + ${a.id}}"/>
-            <input th:value="${a.city}" th:id="@{'city_' + ${a.id}}"/>
-            <button th:onclick="editAirport([[${a.id}]])">Edit</button>
+            <input th:value="${ticket.seats}"/>
+            <input th:value="${ticket.cost}"/>
         </td>
     </tr>
     </tbody>
 </table>
 <script th:src="@{//webjars/jquery/jquery.min.js}"></script>
 <script>
-
-    function deleteAirport(id) {
-        $.ajax({
-            type: "DELETE",
-            url: `/api/airports/${id}`,
-            dataType: "json",
-            complete: function () {
-                location.reload();
-            }
-        });
-    }
-
-    function editAirport(id) {
-        $.ajax({
-            type: "PUT",
-            url: `/api/airports/${id}`,
-            contentType: "application/json",
-            dataType: "json",
-            data: JSON.stringify({name: document.getElementById(`name_${id}`).value,
-                                country: document.getElementById(`country_${id}`).value,
-                                city: document.getElementById(`city_${id}`).value}),
-            complete: function () {
-                location.reload();
-            }
-        });
-    }
-
-    function addAirport() {
-        $.ajax({
-            type: "POST",
-            url: `/api/airports`,
-            contentType: "application/json",
-            data: JSON.stringify({name: document.getElementById(`name`).value,
-                                    country: document.getElementById(`country`).value,
-                                    city: document.getElementById(`city`).value}),
-            error: function (xhr) {
-                alert(xhr.responseJSON.errors);
-            },
-            success: function () {
-                location.reload();
-            }
-        });
-    }
 
 
 </script>

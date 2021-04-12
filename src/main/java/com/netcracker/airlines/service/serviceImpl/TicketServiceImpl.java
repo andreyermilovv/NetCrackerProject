@@ -2,6 +2,7 @@ package com.netcracker.airlines.service.serviceImpl;
 
 import com.netcracker.airlines.dto.TicketDto;
 import com.netcracker.airlines.dto.TicketEditDto;
+import com.netcracker.airlines.entities.Flight;
 import com.netcracker.airlines.entities.Ticket;
 import com.netcracker.airlines.repository.FlightRepo;
 import com.netcracker.airlines.repository.TicketRepo;
@@ -27,6 +28,11 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public List<Ticket> getAll() {
         return ticketRepo.findAll();
+    }
+
+    @Override
+    public List<Ticket> findByFlight(Flight flight) {
+        return ticketRepo.findByFlight(flight);
     }
 
     @Override

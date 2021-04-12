@@ -1,5 +1,6 @@
 package com.netcracker.airlines.mvc;
 
+import com.netcracker.airlines.entities.enums.Status;
 import com.netcracker.airlines.service.AirportService;
 import com.netcracker.airlines.service.FlightService;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,15 @@ public class FlightController {
 
     @GetMapping
     public String get(Model model){
-        model.addAttribute("flights", flightService.getAll());
+        model.addAttribute("flights", flightService.getByStatus(Status.UPCOMING));
         model.addAttribute("airports", airportService.getAll());
         return "flights";
+    }
+
+    @GetMapping("templates")
+    public String templates(Model model){
+        model.addAttribute("flights", flightService.getByStatus(Status.TEMPLATE));
+        model.addAttribute("airports", airportService.getAll());
+        return "flightTemplates";
     }
 }
