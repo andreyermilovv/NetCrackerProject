@@ -15,15 +15,15 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class FlightEditDto {
 
-    @Future
+    @Future(message = "Date can't be past")
     private LocalDate date;
 
-    @Future
+
     private LocalTime timeDeparture;
 
-    @Future
+
     private LocalTime timeArrival;
 
-    @NotNull
+    @NotNull(message = "Status can't be null")
     private Status status;
 }

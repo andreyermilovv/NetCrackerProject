@@ -1,5 +1,6 @@
 package com.netcracker.airlines.service;
 
+import com.netcracker.airlines.dto.EditTemplateDto;
 import com.netcracker.airlines.dto.FlightDto;
 import com.netcracker.airlines.dto.FlightEditDto;
 import com.netcracker.airlines.dto.FlightTemplateDto;
@@ -27,4 +28,6 @@ public interface FlightService {
     void edit(Long id, FlightEditDto flightDto);
 
     void cancel(Long id);
+
+    void editTemplate(Long id, EditTemplateDto editTemplateDto);
 }

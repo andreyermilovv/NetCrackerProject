@@ -59,6 +59,7 @@
         <td th:if="${flight.status.name().equals('TEMPLATE')}"><span> <button id="confirm" th:onclick="confirmFlight([[${flight.id}]])">Confirm</button></span></td>
         <td th:if="${flight.status.name().equals('UPCOMING')}"><span> <button id="cancel" th:onclick="deleteFlight([[${flight.id}]])">Cancel</button></span></td>
         <td><span> <button id="edit" th:onclick="editFlight([[${flight.id}]])">Edit</button> </span></td>
+        <td><span> <a th:href="@{'flights/' + ${flight.id} + '/tickets'}">Tickets</a> </span></td>
     </tr>
     </tbody>
 </table>
@@ -81,59 +82,25 @@
     function editFlight(id) {
         $.ajax({
             type: "PUT",
-            url: `/api/airports/${id}`,
+            url: `/api/flights/${id}`,
             contentType: "application/json",
             dataType: "json",
             data: JSON.stringify({date: document.getElementById(`date_${id}`).value,
                                 timeDeparture: document.getElementById(`timeDeparture_${id}`).value,
                                 timeArrival: document.getElementById(`timeArrival_${id}`).value,
                                 status: document.getElementById(`status_${id}`).value}),
+            error: function (xhr) {
+                alert(xhr.responseJSON.message);
+            },
             complete: function () {
                 location.reload();
             }
         });
     }
 
-    function addFlight() {
-        $.ajax({
-            type: "POST",
-            url: `/api/flights`,
-            contentType: "application/json",
-            data: JSON.stringify({departure: document.getElementById(`departure`).value,
-                                    destination: document.getElementById(`destination`).value,
-                                    date: document.getElementById(`date`).value,
-                                    timeDeparture: document.getElementById(`timeDeparture`).value,
-                                    timeArrival: document.getElementById(`timeArrival`).value,
-                                    status: document.getElementById(`status`).value}),
-            error: function (xhr) {
-                alert(xhr.responseJSON.message);
-            },
-            success: function () {
-                location.reload();
-            }
-        });
-    }
 
-    function confirmFlight(id) {
-        $.ajax({
-            type: "POST",
-            url: `/api/flights/confirm`,
-            contentType: "application/json",
-            data: JSON.stringify({id: id,
-                                    departure: document.getElementById(`departure_${id}`).value,
-                                    destination: document.getElementById(`destination_${id}`).value,
-                                    date: document.getElementById(`date_${id}`).value,
-                                    timeDeparture: document.getElementById(`timeDeparture_${id}`).value,
-                                    timeArrival: document.getElementById(`timeArrival_${id}`).value,
-                                    status: document.getElementById(`status_${id}`).value}),
-            error: function (xhr) {
-                alert(xhr.responseJSON.message);
-            },
-            success: function () {
-                location.reload();
-            }
-        });
-    }
+
+
 
     $(".chosen-select").chosen({
             width: "20%",

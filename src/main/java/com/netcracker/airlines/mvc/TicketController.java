@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("{flight}/tickets")
+@RequestMapping("flights/{flight}/tickets")
 public class TicketController {
 
     private final TicketService ticketService;
@@ -20,6 +20,7 @@ public class TicketController {
 
     @GetMapping
     public String get(@PathVariable Long flight,  Model model){
+        model.addAttribute("flight", flight);
         model.addAttribute("tickets", ticketService.findByFlight(flightService.getOne(flight)));
         return "tickets";
     }

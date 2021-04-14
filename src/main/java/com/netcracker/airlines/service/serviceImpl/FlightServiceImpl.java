@@ -1,9 +1,11 @@
 package com.netcracker.airlines.service.serviceImpl;
 
+import com.netcracker.airlines.dto.EditTemplateDto;
 import com.netcracker.airlines.dto.FlightDto;
 import com.netcracker.airlines.dto.FlightEditDto;
 import com.netcracker.airlines.dto.FlightTemplateDto;
 import com.netcracker.airlines.entities.Flight;
+import com.netcracker.airlines.entities.Ticket;
 import com.netcracker.airlines.entities.enums.Status;
 import com.netcracker.airlines.exception.IncorrectFlightStatusException;
 import com.netcracker.airlines.mapper.FlightMapper;
@@ -77,6 +79,10 @@ public class FlightServiceImpl implements FlightService {
     public void delete(Long id) {
         Flight flight = getOne(id);
         checkCorrectnessOfStatus(flight.getStatus(), Status.TEMPLATE);
+        List<Ticket> tickets = ticketRepo.findByFlight(getOne(id));
+        for (Ticket t: tickets) {
+            ticketRepo.delete(t);
+        }
         flightRepo.delete(flight);
     }
 
@@ -85,8 +91,14 @@ public class FlightServiceImpl implements FlightService {
         if (flightDto.getTimeArrival().isBefore(flightDto.getTimeDeparture())) {
             throw new IllegalArgumentException("Time of arrival must be after time of departure");
         }
-        Flight flight = flightMapper.toEdit(flightDto, flightRepo.getOne(id));
-        flightRepo.save(flight);
+        Flight edited = flightMapper.toEdit(flightDto, flightRepo.getOne(id));
+        flightRepo.save(edited);
+    }
+
+    @Override
+    public void editTemplate(Long id, EditTemplateDto editTemplateDto) {
+        Flight edited = flightMapper.toEditTemplate(editTemplateDto, flightRepo.getOne(id));
+        flightRepo.save(edited);
     }
 
     @Override

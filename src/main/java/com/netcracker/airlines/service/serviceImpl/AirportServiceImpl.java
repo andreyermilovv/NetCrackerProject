@@ -2,6 +2,7 @@ package com.netcracker.airlines.service.serviceImpl;
 
 import com.netcracker.airlines.dto.AirportDto;
 import com.netcracker.airlines.entities.Airport;
+import com.netcracker.airlines.mapper.AirportMapper;
 import com.netcracker.airlines.repository.AirportRepo;
 import com.netcracker.airlines.service.AirportService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ public class AirportServiceImpl implements AirportService {
 
     private final AirportRepo airportRepo;
 
+    private final AirportMapper airportMapper;
+
     @Override
     public Airport getOne(Long id) {
         return airportRepo.getOne(id);
@@ -27,7 +30,7 @@ public class AirportServiceImpl implements AirportService {
 
     @Override
     public void save(AirportDto airportDto) {
-        Airport airport = new Airport(airportDto.getName(), airportDto.getCountry(), airportDto.getCity());
+        Airport airport = airportMapper.toCreate(airportDto);
         airportRepo.save(airport);
     }
 
@@ -40,10 +43,8 @@ public class AirportServiceImpl implements AirportService {
     @Override
     public void edit(Long id, AirportDto airportDto) {
         Airport airport = getOne(id);
-        airport.setName(airportDto.getName());
-        airport.setCity(airportDto.getCity());
-        airport.setCountry(airportDto.getCountry());
-        airportRepo.save(airport);
+        Airport edited = airportMapper.toEdit(airportDto, airport);
+        airportRepo.save(edited);
     }
 
 }

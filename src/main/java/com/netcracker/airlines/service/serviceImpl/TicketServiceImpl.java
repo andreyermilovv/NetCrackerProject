@@ -4,6 +4,7 @@ import com.netcracker.airlines.dto.TicketDto;
 import com.netcracker.airlines.dto.TicketEditDto;
 import com.netcracker.airlines.entities.Flight;
 import com.netcracker.airlines.entities.Ticket;
+import com.netcracker.airlines.mapper.TicketMapper;
 import com.netcracker.airlines.repository.FlightRepo;
 import com.netcracker.airlines.repository.TicketRepo;
 import com.netcracker.airlines.service.TicketService;
@@ -18,7 +19,7 @@ public class TicketServiceImpl implements TicketService {
 
     private final TicketRepo ticketRepo;
 
-    private final FlightRepo flightRepo;
+    private final TicketMapper ticketMapper;
 
     @Override
     public Ticket getOne(Long id) {
@@ -37,7 +38,8 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public void save(TicketDto ticketDto) {
-        Ticket ticket = new Ticket(flightRepo.getOne(ticketDto.getFlight()), ticketDto.getCategory(), ticketDto.getSeats(), ticketDto.getCost());
+        Ticket ticket = ticketMapper.toCreate(ticketDto);
+        if (ticketRepo.findByCategoryAndFlight(ticket.getCategory(), ticket.getFlight())!=null) throw new IllegalArgumentException("There is already tickets with selected category");
         ticketRepo.save(ticket);
     }
 
@@ -49,6 +51,8 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public void edit(Long id, TicketEditDto ticket) {
+        Ticket edited = ticketMapper.toEdit(ticket, getOne(id));
+        ticketRepo.save(edited);
 
     }
 }

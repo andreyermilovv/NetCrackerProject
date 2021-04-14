@@ -3,28 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link th:href="@{//webjars/chosen/chosen.css}" type="text/css" rel="stylesheet">
 </head>
 <body>
 <h2>Tickets</h2>
 <a href="/">
     <button>Back</button>
 </a>
+<select data-placeholder="Choose a type..." class="chosen-select" id="category" name="category">
+    <option value="ECONOMY">Economy-class</option>
+    <option value="BUSINESS">Business-class</option>
+    <option value="FIRST">First-class</option>
+</select>
+<input placeholder="Seats"  id="seats" type="number"/>
+<input placeholder="Cost"  id="cost" type="number"/>
+<button th:onclick="addTicket()">Add tickets</button>
 <table border="1" cellspacing="0" cellpadding="5">
     <tbody>
     <tr th:if="${tickets.empty}">
-        <td colspan="2"> No airports</td>
+        <td colspan="2">No tickets</td>
     </tr>
     <tr th:each="ticket : ${tickets}">
         <td>
-            <input th:value="${ticket.seats}"/>
-            <input th:value="${ticket.cost}"/>
+            <input th:value="${ticket.seats}" th:id="@{'seats_' + ${ticket.id}}"/>
+            <input th:value="${ticket.cost}" th:id="@{'cost_' + ${ticket.id}}"/>
+            <input th:value="${ticket.category}" disabled/>
+            <button th:onclick="editTicket([[${ticket.id}]])">Edit</button>
+         <button id="button" th:onclick="deleteTicket([[${ticket.id}]])">Delete</button>
         </td>
     </tr>
     </tbody>
 </table>
 <script th:src="@{//webjars/jquery/jquery.min.js}"></script>
+<script th:src="@{//webjars/chosen/chosen.jquery.js}"></script>
+<script th:src="@{//webjars/chosen/chosen.proto.js}"></script>
 <script>
+function deleteTicket(id) {
+        $.ajax({
+            type: "DELETE",
+            url: `/api/tickets/${id}`,
+            dataType: "json",
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
 
+    function editTicket(id) {
+        $.ajax({
+            type: "PUT",
+            url: `/api/tickets/${id}`,
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({flight: [[${flight}]],
+                                    seats: document.getElementById(`seats_${id}`).value,
+                                    cost: document.getElementById(`cost_${id}`).value}),
+            error: function (xhr) {
+                alert(xhr.responseJSON.message);
+            },
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
+
+    function addTicket() {
+        $.ajax({
+            type: "POST",
+            url: `/api/tickets`,
+            contentType: "application/json",
+            data: JSON.stringify({flight: [[${flight}]],
+                                    seats: document.getElementById(`seats`).value,
+                                    cost: document.getElementById(`cost`).value,
+                                    category: document.getElementById(`category`).value}),
+            error: function (xhr) {
+                alert(xhr.responseJSON.message);
+            },
+            success: function () {
+                location.reload();
+            }
+        });
+    }
+
+    $(".chosen-select").chosen({
+            width: "20%",
+            no_results_text: "Oops, nothing found!"
+    })
 
 </script>
 </body>

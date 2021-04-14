@@ -14,10 +14,10 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class FlightTemplateDto {
 
-    @NotNull
+    @NotNull(message = "Departure can't be null")
     private Long departure;
 
-    @NotNull
+    @NotNull(message = "Destination can't be null")
     private Long destination;
 
     private LocalDate date;

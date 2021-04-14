@@ -1,5 +1,6 @@
 package com.netcracker.airlines.mapper;
 
+import com.netcracker.airlines.dto.EditTemplateDto;
 import com.netcracker.airlines.dto.FlightDto;
 import com.netcracker.airlines.dto.FlightEditDto;
 import com.netcracker.airlines.dto.FlightTemplateDto;
@@ -40,6 +41,15 @@ public class FlightMapper {
         target.setTimeDeparture(flightEditDto.getTimeDeparture());
         target.setTimeArrival(flightEditDto.getTimeArrival());
         target.setStatus(flightEditDto.getStatus());
+        return target;
+    }
+
+    public Flight toEditTemplate(EditTemplateDto editTemplateDto, Flight target){
+        target.setDate(editTemplateDto.getDate());
+        target.setTimeDeparture(editTemplateDto.getTimeDeparture());
+        target.setTimeArrival(editTemplateDto.getTimeArrival());
+        target.setDeparture(airportRepo.getOne(editTemplateDto.getDeparture()));
+        target.setDestination(airportRepo.getOne(editTemplateDto.getDestination()));
         return target;
     }
 }

@@ -6,19 +6,20 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class AirportDto {
 
-    @NotBlank
-    @Min(value = 3)
+    @NotBlank(message = "Name can't be empty")
+    @Min(value = 3, message = "Name is too short")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "City can't be empty")
     private String city;
 
-    @NotBlank
+    @NotBlank(message = "Country can't be empty")
     private String country;
 }
