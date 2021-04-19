@@ -4,8 +4,10 @@ import com.netcracker.airlines.dto.EditTemplateDto;
 import com.netcracker.airlines.dto.FlightDto;
 import com.netcracker.airlines.dto.FlightEditDto;
 import com.netcracker.airlines.dto.FlightTemplateDto;
+import com.netcracker.airlines.entities.Airplane;
 import com.netcracker.airlines.entities.Flight;
 import com.netcracker.airlines.entities.enums.Status;
+import com.netcracker.airlines.repository.AirplaneRepo;
 import com.netcracker.airlines.repository.AirportRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,11 +18,14 @@ public class FlightMapper {
 
     private final AirportRepo airportRepo;
 
+    private final AirplaneRepo airplaneRepo;
+
     public Flight toTemplate(FlightTemplateDto flightTemplateDto){
         Flight flight = new Flight(airportRepo.getOne(flightTemplateDto.getDeparture()),
                 airportRepo.getOne(flightTemplateDto.getDestination()),
                 flightTemplateDto.getDate(),
                 flightTemplateDto.getTimeDeparture(),
+                airplaneRepo.getOne(flightTemplateDto.getAirplane()),
                 flightTemplateDto.getTimeArrival());
         flight.setStatus(Status.TEMPLATE);
         return flight;
@@ -31,6 +36,7 @@ public class FlightMapper {
                 airportRepo.getOne(flightDto.getDestination()),
                 flightDto.getDate(),
                 flightDto.getTimeDeparture(),
+                airplaneRepo.getOne(flightDto.getAirplane()),
                 flightDto.getTimeArrival());
         flight.setStatus(Status.UPCOMING);
         return flight;
@@ -50,6 +56,7 @@ public class FlightMapper {
         target.setTimeArrival(editTemplateDto.getTimeArrival());
         target.setDeparture(airportRepo.getOne(editTemplateDto.getDeparture()));
         target.setDestination(airportRepo.getOne(editTemplateDto.getDestination()));
+        target.setAirplane(airplaneRepo.getOne(editTemplateDto.getAirplane()));
         return target;
     }
 }

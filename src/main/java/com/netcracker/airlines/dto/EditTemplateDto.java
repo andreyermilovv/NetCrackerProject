@@ -24,4 +24,6 @@ public class EditTemplateDto {
     private LocalTime timeDeparture;
 
     private LocalTime timeArrival;
+
+    private Long airplane;
 }

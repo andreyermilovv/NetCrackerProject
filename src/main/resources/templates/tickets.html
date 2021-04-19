@@ -10,14 +10,16 @@
 <a href="/">
     <button>Back</button>
 </a>
-<select data-placeholder="Choose a type..." class="chosen-select" id="category" name="category">
-    <option value="ECONOMY">Economy-class</option>
-    <option value="BUSINESS">Business-class</option>
-    <option value="FIRST">First-class</option>
-</select>
-<input placeholder="Seats"  id="seats" type="number"/>
-<input placeholder="Cost"  id="cost" type="number"/>
-<button th:onclick="addTicket()">Add tickets</button>
+<th:block sec:authorize="hasRole('ADMIN')">
+    <select data-placeholder="Choose a type..." class="chosen-select" id="category" name="category">
+        <option value="ECONOMY">Economy-class</option>
+        <option value="BUSINESS">Business-class</option>
+        <option value="FIRST">First-class</option>
+    </select>
+    <input placeholder="Seats" id="seats" type="number"/>
+    <input placeholder="Cost" id="cost" type="number"/>
+    <button th:onclick="addTicket()">Add tickets</button>
+</th:block>
 <table border="1" cellspacing="0" cellpadding="5">
     <tbody>
     <tr th:if="${tickets.empty}">
@@ -28,8 +30,10 @@
             <input th:value="${ticket.seats}" th:id="@{'seats_' + ${ticket.id}}"/>
             <input th:value="${ticket.cost}" th:id="@{'cost_' + ${ticket.id}}"/>
             <input th:value="${ticket.category}" disabled/>
-            <button th:onclick="editTicket([[${ticket.id}]])">Edit</button>
-         <button id="button" th:onclick="deleteTicket([[${ticket.id}]])">Delete</button>
+            <th:block sec:authorize="hasRole('ADMIN')">
+                <button th:onclick="editTicket([[${ticket.id}]])">Edit</button>
+                <button id="button" th:onclick="deleteTicket([[${ticket.id}]])">Delete</button>
+            </th:block>
         </td>
     </tr>
     </tbody>
@@ -89,6 +93,7 @@ function deleteTicket(id) {
             width: "20%",
             no_results_text: "Oops, nothing found!"
     })
+
 
 </script>
 </body>

@@ -24,13 +24,6 @@
 <input placeholder="Date" name="date" id="date" type="date"/>
 <input placeholder="Time departure" name="timeDeparture" id="timeDeparture" type="time"/>
 <input placeholder="Time arrival" name="timeArrival" id="timeArrival" type="time"/>
-<select data-placeholder="Choose a type..." class="chosen-select" id="status" onchange="filter()" name="status">
-    <option value="">All</option>
-    <option value="UPCOMING">Upcoming</option>
-    <option value="PAST">Past</option>
-    <option value="CANCELLED">Cancelled</option>
-    <option value="TEMPLATE">Cancelled</option>
-</select>
 <button th:onclick="addFlight()">Create template</button>
 <table border="1" cellspacing="0" cellpadding="5" class="flights">
     <thead>
@@ -41,26 +34,42 @@
         <th>Name of destination airport</th>
         <th>Country</th>
         <th>City</th>
+        <th>Airplane</th>
         <th>Date</th>
         <th>Departure time</th>
         <th>Arrival time</th>
-        <th>Status</th>
+        <th>Economic cost</th>
+        <th>Busyness cost</th>
+        <th>First-class cost</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="flight : ${flights}">
         <td>
-            <input th:text="${flight?.departure?.name}" th:value="${flight.departure.id}"
-                   th:id="@{'departure_' + ${flight.id}}" disabled>
+            <select data-placeholder="Choose a departure airport..."
+                    th:id="@{'departure_' + ${flight.id}}" th:onchange="getDeparture([[${flight.id}]])">
+                <option th:each="airport : ${airports}" th:value="${airport.id}"
+                        th:text="${airport.name}" th:selected="${airport} == ${flight.departure}"></option>
+            </select>
         </td>
-        <td th:text="${flight?.departure?.country}"></td>
-        <td th:text="${flight?.departure?.city}"></td>
+        <td th:text="${flight?.departure?.country}" th:class="@{'depcountry_' + ${flight.id}}"></td>
+        <td th:text="${flight?.departure?.city}" th:class="@{'depcity_' + ${flight.id}}"></td>
         <td>
-            <input th:text="${flight?.destination?.name}" th:value="${flight.destination.id}"
-                   th:id="@{'destination_' + ${flight.id}}" disabled>
+            <select data-placeholder="Choose a departure airport..."
+                    th:id="@{'destination_' + ${flight.id}}" th:onchange="getDestination([[${flight.id}]])">
+                <option th:each="airport : ${airports}" th:value="${airport.id}"
+                        th:text="${airport.name}" th:selected="${airport} == ${flight.destination}"></option>
+            </select>
         </td>
-        <td th:text="${flight?.destination?.country}"></td>
-        <td th:text="${flight?.destination?.city}"></td>
+        <td th:text="${flight?.destination?.country}" th:class="@{'descountry_' + ${flight.id}}"></td>
+        <td th:text="${flight?.destination?.city}" th:class="@{'descity_' + ${flight.id}}"></td>
+        <td>
+            <select data-placeholder="Choose an airplane..."
+                    th:id="@{'airplane_' + ${flight.id}}" th:onchange="getAirplane([[${flight.airplane.id}]])">
+                <option th:each="airplane : ${airplanes}" th:value="${airplane.id}"
+                        th:text="${airplane.name}" th:selected="${airplane} == ${flight.airplane}"></option>
+            </select>
+        </td>
         <td>
             <input th:value="${flight.date}" th:id="@{'date_' + ${flight.id}}"/>
         </td>
@@ -71,14 +80,19 @@
             <input th:value="${flight.timeArrival}" th:id="@{'timeArrival_' + ${flight.id}}"/>
         </td>
         <td>
-            <input th:value="${flight?.status}" th:id="@{'status_' + ${flight.id}}" disabled>
+            <input th:id="@{'economic_' + ${flight.id}}">
+        </td>
+        <td>
+            <input th:id="@{'busyness_' + ${flight.id}}">
+        </td>
+        <td>
+            <input th:id="@{'first_' + ${flight.id}}">
         </td>
         <td><span> <button id="confirm" th:onclick="confirmFlight([[${flight.id}]])">Confirm</button></span>
         </td>
         <td><span> <button id="cancel" th:onclick="deleteFlight([[${flight.id}]])">Delete</button></span>
         </td>
         <td><span> <button id="edit" th:onclick="editFlight([[${flight.id}]])">Edit</button> </span></td>
-        <td><span> <a th:href="@{${flight.id} + '/tickets'}">Tickets</a> </span></td>
     </tr>
     </tbody>
 </table>
@@ -107,8 +121,12 @@
             data: JSON.stringify({departure: document.getElementById(`departure_${id}`).value,
                                     destination: document.getElementById(`destination_${id}`).value,
                                    date: document.getElementById(`date_${id}`).value,
+                                   airplane: document.getElementById(`airplane_${id}`).value,
                                 timeDeparture: document.getElementById(`timeDeparture_${id}`).value,
                                 timeArrival: document.getElementById(`timeArrival_${id}`).value}),
+            error: function (xhr) {
+                alert(xhr.responseJSON.message);
+            },
             complete: function () {
                 location.reload();
             }
@@ -124,9 +142,12 @@
                                     departure: document.getElementById(`departure_${id}`).value,
                                     destination: document.getElementById(`destination_${id}`).value,
                                     date: document.getElementById(`date_${id}`).value,
+                                    airplane: document.getElementById(`airplane_${id}`).value,
                                     timeDeparture: document.getElementById(`timeDeparture_${id}`).value,
                                     timeArrival: document.getElementById(`timeArrival_${id}`).value,
-                                    status: document.getElementById(`status_${id}`).value}),
+                                    economic: document.getElementById(`economic_${id}`).value,
+                                    busyness: document.getElementById(`busyness_${id}`).value,
+                                    first: document.getElementById(`first_${id}`).value}),
             error: function (xhr) {
                 alert(xhr.responseJSON.message);
             },
@@ -141,11 +162,11 @@
             url: `/api/templates`,
             contentType: "application/json",
             data: JSON.stringify({departure: document.getElementById(`departure`).value,
+                                    airplane: document.getElementById(`airplane_${id}`).value,
                                     destination: document.getElementById(`destination`).value,
                                     date: document.getElementById(`date`).value,
                                     timeDeparture: document.getElementById(`timeDeparture`).value,
-                                    timeArrival: document.getElementById(`timeArrival`).value,
-                                    status: document.getElementById(`status`).value}),
+                                    timeArrival: document.getElementById(`timeArrival`).value}),
             error: function (xhr) {
                 alert(xhr.responseJSON.message);
             },
@@ -155,11 +176,38 @@
         });
     }
 
+    function getDeparture(idd) {
+        let id = $("#departure_" + idd).val();
+        $.ajax({
+            type: "GET",
+            url: `/api/airports/${id}`,
+            complete: function (response) {
+                let data = JSON.parse(response.responseText);
+                $(".depcountry_" + idd).html(data.country);
+                $(".depcity_" + idd).html(data.city);
+            }
+        });
+    }
+
+    function getDestination(idd) {
+        let id = $("#destination_" + idd).val();
+        $.ajax({
+            type: "GET",
+            url: `/api/airports/${id}`,
+            complete: function (response) {
+                let data = JSON.parse(response.responseText);
+                $(".descountry_" + idd).html(data.country);
+                $(".descity_" + idd).html(data.city);
+            }
+        });
+    }
 
     $(".chosen-select").chosen({
             width: "20%",
             no_results_text: "Oops, nothing found!"
     })
+
+
 
 
 </script>

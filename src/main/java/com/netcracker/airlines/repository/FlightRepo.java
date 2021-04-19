@@ -9,4 +9,6 @@ import java.util.List;
 public interface FlightRepo extends JpaRepository<Flight, Long> {
 
     List<Flight> findByStatus(Status status);
+
+    List<Flight> findByStatusNot(Status status);
 }

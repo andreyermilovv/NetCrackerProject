@@ -33,6 +33,10 @@ public class Flight {
 
     private LocalTime timeArrival;
 
+    @ManyToOne
+    @JoinColumn(name = "airplane_id")
+    private Airplane airplane;
+
     @Enumerated(EnumType.STRING)
     private Status status;
 
@@ -41,6 +45,7 @@ public class Flight {
                   LocalDate date,
                   LocalTime timeDeparture,
                   LocalTime timeArrival,
+                  Airplane airplane,
                   Status status) {
         this.departure = departure;
         this.destination = destination;
@@ -48,17 +53,20 @@ public class Flight {
         this.timeDeparture = timeDeparture;
         this.timeArrival = timeArrival;
         this.status = status;
+        this.airplane = airplane;
     }
 
     public Flight(Airport departure,
                   Airport destination,
                   LocalDate date,
                   LocalTime timeDeparture,
+                  Airplane airplane,
                   LocalTime timeArrival) {
         this.departure = departure;
         this.destination = destination;
         this.date = date;
         this.timeDeparture = timeDeparture;
         this.timeArrival = timeArrival;
+        this.airplane = airplane;
     }
 }

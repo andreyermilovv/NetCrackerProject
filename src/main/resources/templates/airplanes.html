@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h2>Airports</h2>
+<a href="/">
+    <button>Back</button>
+</a>
+<input placeholder="Name" name="name" id="name"/>
+<input placeholder="Busyness" name="name" id="busyness"/>
+<input placeholder="Economic" name="name" id="economic"/>
+<input placeholder="First" name="name" id="first"/>
+<button th:onclick="addAirplane()">Add airplane</button>
+<table border="1" cellspacing="0" cellpadding="5">
+    <tbody>
+    <tr th:if="${airplanes.empty}">
+        <td colspan="2"> No airports</td>
+    </tr>
+    <tr th:each="a : ${airplanes}">
+        <td><span> <button id="button" th:onclick="deleteAirplane([[${a.id}]])">Delete</button> </span></td>
+        <td>
+            <input th:value="${a.name}" th:id="@{'name_' + ${a.id}}"/>
+            <input th:value="${a.economic}" th:id="@{'economic_' + ${a.id}}"/>
+            <input th:value="${a.busyness}" th:id="@{'busyness_' + ${a.id}}"/>
+            <input th:value="${a.first}" th:id="@{'first_' + ${a.id}}"/>
+            <button th:onclick="editAirplane([[${a.id}]])">Edit</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<script th:src="@{//webjars/jquery/jquery.min.js}"></script>
+<script>
+
+    function deleteAirplane(id) {
+        $.ajax({
+            type: "DELETE",
+            url: `/api/airplanes/${id}`,
+            dataType: "json",
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
+
+    function editAirplane(id) {
+        $.ajax({
+            type: "PUT",
+            url: `/api/airplanes/${id}`,
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({name: document.getElementById(`name_${id}`).value,
+                                busyness: document.getElementById(`busyness_${id}`).value,
+                                economic: document.getElementById(`economic_${id}`).value,
+                                first: document.getElementById(`first_${id}`).value}),
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
+
+    function addAirplane() {
+        $.ajax({
+            type: "POST",
+            url: `/api/airplanes`,
+            contentType: "application/json",
+            data: JSON.stringify({name: document.getElementById(`name`).value,
+                                busyness: document.getElementById(`busyness`).value,
+                                economic: document.getElementById(`economic`).value,
+                                first: document.getElementById(`first`).value}),
+            error: function (xhr) {
+                alert(xhr.responseJSON.errors);
+            },
+            success: function () {
+                location.reload();
+            }
+        });
+    }
+
+
+
+</script>
+</body>
+</html>

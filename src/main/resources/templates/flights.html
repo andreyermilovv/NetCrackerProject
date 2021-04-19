@@ -26,6 +26,7 @@
         <th>Name of destination airport</th>
         <th>Country</th>
         <th>City</th>
+        <th>Airplane</th>
         <th>Date</th>
         <th>Departure time</th>
         <th>Arrival time</th>
@@ -35,17 +36,22 @@
     <tbody>
     <tr th:each="flight : ${flights}">
         <td>
-            <input th:text="${flight?.departure?.name}" th:value="${flight.departure.id}" th:id="@{'departure_' + ${flight.id}}" disabled>
+            <input th:text="${flight?.departure?.name}" th:value="${flight.departure.id}"
+                   th:id="@{'departure_' + ${flight.id}}" disabled>
         </td>
         <td th:text="${flight?.departure?.country}"></td>
         <td th:text="${flight?.departure?.city}"></td>
         <td>
-            <input th:text="${flight?.destination?.name}" th:value="${flight.destination.id}" th:id="@{'destination_' + ${flight.id}}" disabled>
+            <input th:text="${flight?.destination?.name}" th:value="${flight.destination.id}"
+                   th:id="@{'destination_' + ${flight.id}}" disabled>
         </td>
         <td th:text="${flight?.destination?.country}"></td>
         <td th:text="${flight?.destination?.city}"></td>
         <td>
-            <input th:value="${flight.date}" th:id="@{'date_' + ${flight.id}}" />
+            <p th:text="${flight?.airplane?.name}"></p>
+        </td>
+        <td>
+            <input th:value="${flight.date}" th:id="@{'date_' + ${flight.id}}"/>
         </td>
         <td>
             <input th:value="${flight.timeDeparture}" th:id="@{'timeDeparture_' + ${flight.id}}"/>
@@ -56,9 +62,12 @@
         <td>
             <input th:value="${flight?.status}" th:id="@{'status_' + ${flight.id}}" disabled>
         </td>
-        <td th:if="${flight.status.name().equals('TEMPLATE')}"><span> <button id="confirm" th:onclick="confirmFlight([[${flight.id}]])">Confirm</button></span></td>
-        <td th:if="${flight.status.name().equals('UPCOMING')}"><span> <button id="cancel" th:onclick="deleteFlight([[${flight.id}]])">Cancel</button></span></td>
-        <td><span> <button id="edit" th:onclick="editFlight([[${flight.id}]])">Edit</button> </span></td>
+        <th:block sec:authorize="hasRole('ADMIN')">
+            <td th:if="${flight.status.name().equals('UPCOMING')}">
+                <span><button id="cancel" th:onclick="deleteFlight([[${flight.id}]])">Cancel</button></span>
+            </td>
+            <td><span> <button id="edit" th:onclick="editFlight([[${flight.id}]])">Edit</button> </span></td>
+        </th:block>
         <td><span> <a th:href="@{'flights/' + ${flight.id} + '/tickets'}">Tickets</a> </span></td>
     </tr>
     </tbody>
@@ -136,6 +145,8 @@
             }
         });
     }
+
+
 </script>
 </body>
 </html>

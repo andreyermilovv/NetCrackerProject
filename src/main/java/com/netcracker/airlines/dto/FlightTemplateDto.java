@@ -1,6 +1,5 @@
 package com.netcracker.airlines.dto;
 
-import com.netcracker.airlines.entities.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +20,9 @@ public class FlightTemplateDto {
     private Long destination;
 
     private LocalDate date;
+
+    @NotNull(message = "Airplane can't be null")
+    private Long airplane;
 
     private LocalTime timeDeparture;
 

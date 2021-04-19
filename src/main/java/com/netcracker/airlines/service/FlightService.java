@@ -15,9 +15,9 @@ public interface FlightService {
 
     List<Flight> getByStatus(Status status);
 
-    List<Flight> getAll();
+    List<Flight> getWhenStatusNot(Status status);
 
-    void save(FlightDto flightDto);
+    List<Flight> getAll();
 
     void createTemplate(FlightTemplateDto flightTemplateDto);
 
@@ -30,4 +30,6 @@ public interface FlightService {
     void cancel(Long id);
 
     void editTemplate(Long id, EditTemplateDto editTemplateDto);
+
+    void updateStatus();
 }

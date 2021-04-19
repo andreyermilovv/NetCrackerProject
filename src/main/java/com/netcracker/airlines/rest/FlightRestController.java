@@ -1,25 +1,24 @@
 package com.netcracker.airlines.rest;
 
-import com.netcracker.airlines.dto.FlightDto;
 import com.netcracker.airlines.dto.FlightEditDto;
 import com.netcracker.airlines.entities.Flight;
 import com.netcracker.airlines.entities.enums.Status;
 import com.netcracker.airlines.exception.ValidExceptionHelper;
 import com.netcracker.airlines.service.FlightService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/flights")
+@PreAuthorize("hasRole('ADMIN')")
 public class FlightRestController {
 
     private final FlightService flightService;
