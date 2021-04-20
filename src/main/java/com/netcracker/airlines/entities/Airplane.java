@@ -19,7 +19,7 @@ public class Airplane {
 
     private String name;
 
-    private Integer busyness;
+    private Integer business;
 
     private Integer economic;
 
@@ -27,7 +27,7 @@ public class Airplane {
 
     public Airplane(String name, Integer busyness, Integer economic, Integer first) {
         this.name = name;
-        this.busyness = busyness;
+        this.business = busyness;
         this.economic = economic;
         this.first = first;
     }

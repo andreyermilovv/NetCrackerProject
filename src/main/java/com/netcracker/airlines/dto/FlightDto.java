@@ -43,7 +43,7 @@ public class FlightDto {
 
     @NotNull(message = "Cost can't be null")
     @Min(value = 1, message = "Cost can't be zero")
-    private Integer busyness;
+    private Integer business;
 
     @NotNull(message = "Cost can't be null")
     @Min(value = 1, message = "Cost can't be zero")
