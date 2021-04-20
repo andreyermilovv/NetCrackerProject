@@ -20,7 +20,7 @@ public class AirplaneDto {
     @NotNull(message = "economic can't be empty")
     private Integer economic;
 
-    @NotNull(message = "busyness can't be empty")
+    @NotNull(message = "business can't be empty")
     private Integer business;
 
     @NotNull(message = "first can't be empty")
