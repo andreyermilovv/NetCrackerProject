@@ -14,4 +14,10 @@ public class ExceptionResolver {
         model.addAttribute("message", exception.getMessage());
         return req.getRequestURI();
     }
+
+    @ExceptionHandler({IllegalArgumentException.class})
+    public String illeagalArgument(Model model, DuplicateUserEmailException exception, HttpServletRequest req){
+        model.addAttribute("message", exception.getMessage());
+        return req.getRequestURI();
+    }
 }

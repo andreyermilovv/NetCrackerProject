@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link th:href="@{//webjars/chosen/chosen.css}" type="text/css" rel="stylesheet">
+</head>
+<body>
+<h2>Airports</h2>
+<a href="/">
+    <button>Back</button>
+</a>
+<p th:text="${message}" th:if="${message != null}"></p>
+<select data-placeholder="Choose a type..." class="chosen-select" id="status" onchange="filter()" name="status">
+    <option value="">All</option>
+    <option value="UPCOMING">Upcoming</option>
+    <option value="PAST">Past</option>
+    <option value="CANCELLED">Cancelled</option>
+</select>
+<table border="1" cellspacing="0" cellpadding="5" class="flights">
+    <thead>
+    <tr>
+        <th>Name of departure airport</th>
+        <th>Country</th>
+        <th>City</th>
+        <th>Name of destination airport</th>
+        <th>Country</th>
+        <th>City</th>
+        <th>Airplane</th>
+        <th>Date</th>
+        <th>Departure time</th>
+        <th>Arrival time</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="flight : ${flights}">
+        <td>
+            <input th:text="${flight?.departure?.name}" th:value="${flight.departure.id}"
+                   th:id="@{'departure_' + ${flight.id}}" disabled>
+        </td>
+        <td th:text="${flight?.departure?.country}"></td>
+        <td th:text="${flight?.departure?.city}"></td>
+        <td>
+            <input th:text="${flight?.destination?.name}" th:value="${flight.destination.id}"
+                   th:id="@{'destination_' + ${flight.id}}" disabled>
+        </td>
+        <td th:text="${flight?.destination?.country}"></td>
+        <td th:text="${flight?.destination?.city}"></td>
+        <td>
+            <p th:text="${flight?.airplane?.name}"></p>
+        </td>
+        <td>
+            <input th:value="${flight.date}" th:id="@{'date_' + ${flight.id}}"/>
+        </td>
+        <td>
+            <input th:value="${flight.timeDeparture}" th:id="@{'timeDeparture_' + ${flight.id}}"/>
+        </td>
+        <td>
+            <input th:value="${flight.timeArrival}" th:id="@{'timeArrival_' + ${flight.id}}"/>
+        </td>
+        <td>
+            <input th:value="${flight?.status}" th:id="@{'status_' + ${flight.id}}" disabled>
+        </td>
+        <th:block sec:authorize="hasRole('ADMIN')">
+            <td th:if="${flight.status.name().equals('UPCOMING')}">
+                <span><button id="cancel" th:onclick="deleteFlight([[${flight.id}]])">Cancel</button></span>
+            </td>
+            <td><span> <button id="edit" th:onclick="editFlight([[${flight.id}]])">Edit</button> </span></td>
+        </th:block>
+        <td><span> <a th:href="@{'flights/' + ${flight.id} + '/tickets'}">Tickets</a> </span></td>
+    </tr>
+    </tbody>
+</table>
+<script th:src="@{//webjars/jquery/jquery.min.js}"></script>
+<script th:src="@{//webjars/chosen/chosen.jquery.js}"></script>
+<script th:src="@{//webjars/chosen/chosen.proto.js}"></script>
+<script>
+
+    function deleteFlight(id) {
+        $.ajax({
+            type: "DELETE",
+            url: `/api/flights/${id}`,
+            dataType: "json",
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
+
+    function editFlight(id) {
+        $.ajax({
+            type: "PUT",
+            url: `/api/flights/${id}`,
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({date: document.getElementById(`date_${id}`).value,
+                                timeDeparture: document.getElementById(`timeDeparture_${id}`).value,
+                                timeArrival: document.getElementById(`timeArrival_${id}`).value,
+                                status: document.getElementById(`status_${id}`).value}),
+            error: function (xhr) {
+                alert(xhr.responseJSON.message);
+            },
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
+
+
+
+
+
+    $(".chosen-select").chosen({
+            width: "20%",
+            no_results_text: "Oops, nothing found!"
+    })
+
+    function filter() {
+        let status = $("select[name='status']").val();
+        $.ajax({
+            url: `api/flights`,
+            type: "get",
+            data: {
+                status: status,
+            },
+            complete: function (response) {
+                let data = JSON.parse(response.responseText);
+                let table = '<table class="flights">';
+                for (elem of data) {
+                    table += '<tr>';
+                    table += '<td>' + elem.departure.name + '</td>';
+                    table += '<td>' + elem.departure.country + '</td>';
+                    table += '<td>' + elem.departure.city + '</td>';
+                    table += '<td>' + elem.destination.name + '</td>';
+                    table += '<td>' + elem.destination.country + '</td>';
+                    table += '<td>' + elem.destination.city + '</td>';
+                    table += '<td>' + elem.date + '</td>';
+                    table += '<td>' + elem.timeDeparture + '</td>';
+                    table += '<td>' + elem.timeArrival + '</td>';
+                }
+                table += '</table>';
+                let div = '<div><table><tr>';
+                $(".flights").html(table);
+            }
+        });
+    }
+
+
+</script>
+</body>
+</html>
