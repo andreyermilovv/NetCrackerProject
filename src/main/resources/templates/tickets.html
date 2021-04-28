@@ -34,6 +34,7 @@
                 <button th:onclick="editTicket([[${ticket.id}]])">Edit</button>
                 <button id="button" th:onclick="deleteTicket([[${ticket.id}]])">Delete</button>
             </th:block>
+            <button th:onclick="buyTicket([[${ticket.id}]])">Edit</button>
         </td>
     </tr>
     </tbody>
@@ -46,6 +47,17 @@ function deleteTicket(id) {
         $.ajax({
             type: "DELETE",
             url: `/api/tickets/${id}`,
+            dataType: "json",
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
+
+    function buyTicket(id) {
+        $.ajax({
+            type: "POST",
+            url: `/api/purchase`,
             dataType: "json",
             complete: function () {
                 location.reload();

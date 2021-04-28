@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -21,9 +21,9 @@ public class EditTemplateDto {
 
     private LocalDate date;
 
-    private LocalTime timeDeparture;
+    private LocalDateTime timeDeparture;
 
-    private LocalTime timeArrival;
+    private LocalDateTime timeArrival;
 
     private Long airplane;
 }

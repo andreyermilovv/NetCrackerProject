@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -19,10 +19,10 @@ public class FlightEditDto {
     private LocalDate date;
 
 
-    private LocalTime timeDeparture;
+    private LocalDateTime timeDeparture;
 
 
-    private LocalTime timeArrival;
+    private LocalDateTime timeArrival;
 
     @NotNull(message = "Status can't be null")
     private Status status;

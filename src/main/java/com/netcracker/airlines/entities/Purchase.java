@@ -27,4 +27,11 @@ public class Purchase {
     private Integer amount;
 
     private Integer cost;
+
+    public Purchase(Ticket ticket, User user, Integer amount, Integer cost) {
+        this.ticket = ticket;
+        this.user = user;
+        this.amount = amount;
+        this.cost = cost;
+    }
 }

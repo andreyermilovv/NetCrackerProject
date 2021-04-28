@@ -14,6 +14,24 @@
     <p>First name: [[${user?.name}]]</p>
     <p>Last name: [[${user?.surname}]]</p>
     <p>Role: [[${user?.role}]]</p>
+    <p>Money: [[${user?.money}]]</p>
+    <input placeholder="Money" id="money" type="number"/>
+    <button onclick="addMoney()">Add money</button>
 </div>
+<script th:src="@{//webjars/jquery/jquery.min.js}"></script>
+<script>
+    function addMoney() {
+        $.ajax({
+            type: "PUT",
+            url: `/api/purchase`,
+            data: {
+                money: $("#money").val()
+            },
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
+</script>
 </body>
 </html>

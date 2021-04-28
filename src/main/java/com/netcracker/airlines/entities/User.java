@@ -29,6 +29,8 @@ public class User implements UserDetails {
 
     private String password;
 
+    private Integer money;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 

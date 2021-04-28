@@ -34,4 +34,10 @@ public class UserServiceImpl implements UserService {
         user.setRole(Role.USER);
         userRepo.save(user);
     }
+
+    @Override
+    public void addMoney(Integer money, User user) {
+        user.setMoney(user.getMoney() + money);
+        userRepo.save(user);
+    }
 }

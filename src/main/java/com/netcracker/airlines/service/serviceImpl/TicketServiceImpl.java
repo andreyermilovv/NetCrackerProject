@@ -64,7 +64,7 @@ public class TicketServiceImpl implements TicketService {
                 if (ticket.getSeats() > airplane.getEconomic()) throw new IllegalArgumentException("Number of seats can't be more than maximum capacity");
             }
             case BUSINESS -> {
-                if (ticket.getSeats() > airplane.getBusyness()) throw new IllegalArgumentException("Number of seats can't be more than maximum capacity");
+                if (ticket.getSeats() > airplane.getBusiness()) throw new IllegalArgumentException("Number of seats can't be more than maximum capacity");
             }
             case FIRST -> {
                 if (ticket.getSeats() > airplane.getFirst()) throw new IllegalArgumentException("Number of seats can't be more than maximum capacity");

@@ -10,7 +10,7 @@
     <button>Back</button>
 </a>
 <input placeholder="Name" name="name" id="name"/>
-<input placeholder="Busyness" name="name" id="busyness"/>
+<input placeholder="Busyness" name="name" id="business"/>
 <input placeholder="Economic" name="name" id="economic"/>
 <input placeholder="First" name="name" id="first"/>
 <button th:onclick="addAirplane()">Add airplane</button>
@@ -24,7 +24,7 @@
         <td>
             <input th:value="${a.name}" th:id="@{'name_' + ${a.id}}"/>
             <input th:value="${a.economic}" th:id="@{'economic_' + ${a.id}}"/>
-            <input th:value="${a.busyness}" th:id="@{'busyness_' + ${a.id}}"/>
+            <input th:value="${a.business}" th:id="@{'business_' + ${a.id}}"/>
             <input th:value="${a.first}" th:id="@{'first_' + ${a.id}}"/>
             <button th:onclick="editAirplane([[${a.id}]])">Edit</button>
         </td>
@@ -52,7 +52,7 @@
             contentType: "application/json",
             dataType: "json",
             data: JSON.stringify({name: document.getElementById(`name_${id}`).value,
-                                busyness: document.getElementById(`busyness_${id}`).value,
+                                business: document.getElementById(`business_${id}`).value,
                                 economic: document.getElementById(`economic_${id}`).value,
                                 first: document.getElementById(`first_${id}`).value}),
             complete: function () {
@@ -67,7 +67,7 @@
             url: `/api/airplanes`,
             contentType: "application/json",
             data: JSON.stringify({name: document.getElementById(`name`).value,
-                                busyness: document.getElementById(`busyness`).value,
+                                business: document.getElementById(`business`).value,
                                 economic: document.getElementById(`economic`).value,
                                 first: document.getElementById(`first`).value}),
             error: function (xhr) {

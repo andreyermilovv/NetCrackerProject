@@ -17,4 +17,9 @@ public class AirportMapper {
         airport.setCountry(airportDto.getCountry());
         return airport;
     }
+
+    public AirportDto toDto(Airport airport){
+        return new AirportDto(airport.getName(), airport.getCity(), airport.getCountry());
+    }
+
 }

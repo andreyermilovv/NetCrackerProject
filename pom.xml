@@ -20,6 +20,7 @@
         <org.webjars.locator.version>0.40</org.webjars.locator.version>
         <org.webjars.jquery.version>3.5.1</org.webjars.jquery.version>
         <org.webjars.chosen.version>1.8.7</org.webjars.chosen.version>
+        <org.webjars.bootstrap.version>4.6.0</org.webjars.bootstrap.version>
     </properties>
 
     <dependencies>
@@ -98,6 +99,12 @@
         <dependency>
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-springsecurity5</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>${org.webjars.bootstrap.version}</version>
         </dependency>
     </dependencies>
 

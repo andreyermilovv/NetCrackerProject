@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -27,11 +27,9 @@ public class Flight {
     @JoinColumn(name = "destination_airport_id")
     private Airport destination;
 
-    private LocalDate date;
+    private LocalDateTime timeDeparture;
 
-    private LocalTime timeDeparture;
-
-    private LocalTime timeArrival;
+    private LocalDateTime timeArrival;
 
     @ManyToOne
     @JoinColumn(name = "airplane_id")
@@ -40,16 +38,17 @@ public class Flight {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @OneToMany(mappedBy = "flight")
+    private List<Ticket> tickets;
+
     public Flight(Airport departure,
                   Airport destination,
-                  LocalDate date,
-                  LocalTime timeDeparture,
-                  LocalTime timeArrival,
+                  LocalDateTime timeDeparture,
+                  LocalDateTime timeArrival,
                   Airplane airplane,
                   Status status) {
         this.departure = departure;
         this.destination = destination;
-        this.date = date;
         this.timeDeparture = timeDeparture;
         this.timeArrival = timeArrival;
         this.status = status;
@@ -58,13 +57,11 @@ public class Flight {
 
     public Flight(Airport departure,
                   Airport destination,
-                  LocalDate date,
-                  LocalTime timeDeparture,
+                  LocalDateTime timeDeparture,
                   Airplane airplane,
-                  LocalTime timeArrival) {
+                  LocalDateTime timeArrival) {
         this.departure = departure;
         this.destination = destination;
-        this.date = date;
         this.timeDeparture = timeDeparture;
         this.timeArrival = timeArrival;
         this.airplane = airplane;

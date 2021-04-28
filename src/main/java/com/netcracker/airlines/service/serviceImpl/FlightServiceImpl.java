@@ -1,9 +1,8 @@
 package com.netcracker.airlines.service.serviceImpl;
 
-import com.netcracker.airlines.dto.EditTemplateDto;
-import com.netcracker.airlines.dto.FlightDto;
-import com.netcracker.airlines.dto.FlightEditDto;
-import com.netcracker.airlines.dto.FlightTemplateDto;
+import com.netcracker.airlines.dto.*;
+import com.netcracker.airlines.dto.search.FlightSearchDto;
+import com.netcracker.airlines.entities.Airport;
 import com.netcracker.airlines.entities.Flight;
 import com.netcracker.airlines.entities.Ticket;
 import com.netcracker.airlines.entities.enums.Category;
@@ -14,11 +13,16 @@ import com.netcracker.airlines.repository.FlightRepo;
 import com.netcracker.airlines.repository.TicketRepo;
 import com.netcracker.airlines.service.FlightService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import static com.netcracker.airlines.repository.FlightSpecificationsUtils.*;
+
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +69,7 @@ public class FlightServiceImpl implements FlightService {
         checkTime(flight);
         flightRepo.save(flight);
         ticketRepo.save(new Ticket(flight, Category.ECONOMY, flight.getAirplane().getEconomic(), flightDto.getEconomic()));
-        ticketRepo.save(new Ticket(flight, Category.BUSINESS, flight.getAirplane().getBusyness(), flightDto.getBusyness()));
+        ticketRepo.save(new Ticket(flight, Category.BUSINESS, flight.getAirplane().getBusiness(), flightDto.getBusiness()));
         ticketRepo.save(new Ticket(flight, Category.FIRST, flight.getAirplane().getFirst(), flightDto.getFirst()));
     }
 
@@ -96,11 +100,36 @@ public class FlightServiceImpl implements FlightService {
     @Override
     public void updateStatus() {
         List<Flight> flights = flightRepo.findByStatus(Status.UPCOMING);
-        for(Flight flight : flights){
-            if (flight.getDate().isEqual(LocalDate.now()) && flight.getTimeDeparture().minusHours(1).isAfter(LocalTime.now())) {
+        for (Flight flight : flights) {
+            if (flight.getTimeDeparture().plusHours(1).isAfter(LocalDateTime.now())) {
                 flight.setStatus(Status.PAST);
             }
         }
+    }
+
+    @Override
+    public List<FlightDtoResponse> search(FlightSearchDto flightSearchDto) {
+        List<Specification<Flight>> specifications = new ArrayList<>();
+        if (flightSearchDto.getDate() != null)
+            specifications.add(flightDate(flightSearchDto.getDate()));
+        if (flightSearchDto.getDepartureCity() != null) {
+            specifications.add(flightDepartureCity(flightSearchDto.getDepartureCity()));
+        }
+        if (flightSearchDto.getDepartureCountry() != null) {
+            specifications.add(flightDepartureCountry(flightSearchDto.getDepartureCountry()));
+        }
+        if (flightSearchDto.getDestinationCity() != null) {
+            specifications.add(flightDestinationCity(flightSearchDto.getDestinationCity()));
+        }
+        if (flightSearchDto.getDestinationCountry() != null) {
+            specifications.add(flightDestinationCountry(flightSearchDto.getDestinationCountry()));
+        }
+        Specification<Flight> specification = specifications.stream().reduce(Specification::and).orElse(null);
+        List<FlightDtoResponse> responses = new ArrayList<>();
+        for (Flight flight : flightRepo.findAll(specification)) {
+            responses.add(flightMapper.toResponse(flight));
+        }
+        return responses;
     }
 
     @Override
