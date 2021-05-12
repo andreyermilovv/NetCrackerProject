@@ -19,8 +19,6 @@ public class EditTemplateDto {
     @NotNull(message = "Destination can't be null")
     private Long destination;
 
-    private LocalDate date;
-
     private LocalDateTime timeDeparture;
 
     private LocalDateTime timeArrival;

@@ -4,6 +4,7 @@ import com.netcracker.airlines.dto.TicketDto;
 import com.netcracker.airlines.dto.TicketEditDto;
 import com.netcracker.airlines.entities.Flight;
 import com.netcracker.airlines.entities.Ticket;
+import com.netcracker.airlines.entities.enums.Category;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface TicketService {
     void delete(Long id);
 
     void edit(Long id, TicketEditDto ticket);
+
+    List<Ticket> findByFlightAndCategory(Flight flight, Category category);
 }

@@ -2,10 +2,10 @@ package com.netcracker.airlines.service.serviceImpl;
 
 import com.netcracker.airlines.dto.*;
 import com.netcracker.airlines.dto.search.FlightSearchDto;
-import com.netcracker.airlines.entities.Airport;
 import com.netcracker.airlines.entities.Flight;
 import com.netcracker.airlines.entities.Ticket;
 import com.netcracker.airlines.entities.enums.Category;
+import com.netcracker.airlines.entities.enums.Role;
 import com.netcracker.airlines.entities.enums.Status;
 import com.netcracker.airlines.exception.IncorrectFlightStatusException;
 import com.netcracker.airlines.mapper.FlightMapper;
@@ -14,15 +14,18 @@ import com.netcracker.airlines.repository.TicketRepo;
 import com.netcracker.airlines.service.FlightService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import static com.netcracker.airlines.repository.FlightSpecificationsUtils.*;
-
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.netcracker.airlines.repository.FlightSpecificationsUtils.*;
 
 @Service
 @RequiredArgsConstructor
@@ -68,9 +71,17 @@ public class FlightServiceImpl implements FlightService {
         checkAirports(flight);
         checkTime(flight);
         flightRepo.save(flight);
-        ticketRepo.save(new Ticket(flight, Category.ECONOMY, flight.getAirplane().getEconomic(), flightDto.getEconomic()));
-        ticketRepo.save(new Ticket(flight, Category.BUSINESS, flight.getAirplane().getBusiness(), flightDto.getBusiness()));
-        ticketRepo.save(new Ticket(flight, Category.FIRST, flight.getAirplane().getFirst(), flightDto.getFirst()));
+        List<Ticket> tickets = new ArrayList<>();
+        for (int i = 0; i < flight.getAirplane().getFirst(); i++) {
+            tickets.add(new Ticket(flight, Category.FIRST, i, flightDto.getFirst(), true));
+        }
+        for (int i = 0; i < flight.getAirplane().getBusiness(); i++) {
+            tickets.add(new Ticket(flight, Category.BUSINESS, i, flightDto.getBusiness(), true));
+        }
+        for (int i = 0; i < flight.getAirplane().getEconomic(); i++) {
+            tickets.add(new Ticket(flight, Category.ECONOMY, i, flightDto.getEconomic(), true));
+        }
+        ticketRepo.saveAll(tickets);
     }
 
     @Override
@@ -124,11 +135,22 @@ public class FlightServiceImpl implements FlightService {
         if (flightSearchDto.getDestinationCountry() != null) {
             specifications.add(flightDestinationCountry(flightSearchDto.getDestinationCountry()));
         }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth.getAuthorities().contains(Role.ADMIN)) {
+            specifications.add(flightStatus(Arrays.asList(Status.UPCOMING, Status.CANCELLED, Status.PAST)));
+        }
+        else {
+            specifications.add(flightStatus(Collections.singletonList(Status.UPCOMING)));
+        }
         Specification<Flight> specification = specifications.stream().reduce(Specification::and).orElse(null);
         List<FlightDtoResponse> responses = new ArrayList<>();
         for (Flight flight : flightRepo.findAll(specification)) {
             responses.add(flightMapper.toResponse(flight));
         }
+        if (flightSearchDto.getCost() != null)
+            responses = responses.stream()
+                    .filter(x -> ticketRepo.findByCategoryAndFlightOrderByIdAsc(Category.ECONOMY, getOne(x.getId())).get(0).getCost() < flightSearchDto.getCost())
+                    .collect(Collectors.toList());
         return responses;
     }
 

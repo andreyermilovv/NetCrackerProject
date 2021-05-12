@@ -4,9 +4,11 @@ import com.netcracker.airlines.dto.*;
 import com.netcracker.airlines.dto.search.FlightSearchDto;
 import com.netcracker.airlines.entities.Flight;
 import com.netcracker.airlines.entities.Ticket;
+import com.netcracker.airlines.entities.enums.Category;
 import com.netcracker.airlines.entities.enums.Status;
 import com.netcracker.airlines.repository.AirplaneRepo;
 import com.netcracker.airlines.repository.AirportRepo;
+import com.netcracker.airlines.repository.TicketRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +27,8 @@ public class FlightMapper {
     private final AirplaneMapper airplaneMapper;
 
     private final AirportMapper airportMapper;
+
+    private final TicketRepo ticketRepo;
 
     public Flight toTemplate(FlightTemplateDto flightTemplateDto) {
         Flight flight = new Flight(airportRepo.getOne(flightTemplateDto.getDeparture()),
@@ -66,13 +70,15 @@ public class FlightMapper {
                                        String departureCity,
                                        String destinationCountry,
                                        String destinationCity,
-                                       LocalDate date) {
+                                       LocalDate date,
+                                       Integer cost) {
         FlightSearchDto flightSearchDto = new FlightSearchDto();
         if (!departureCity.isBlank()) flightSearchDto.setDepartureCity(departureCity);
         if (!destinationCity.isBlank()) flightSearchDto.setDestinationCity(destinationCity);
         if (!departureCountry.isBlank()) flightSearchDto.setDepartureCountry(departureCountry);
         if (!destinationCountry.isBlank()) flightSearchDto.setDestinationCountry(destinationCountry);
         if (date != null) flightSearchDto.setDate(date);
+        if (cost != null) flightSearchDto.setCost(cost);
         return flightSearchDto;
     }
 
@@ -85,9 +91,9 @@ public class FlightMapper {
         flightDtoResponse.setTimeArrival(flight.getTimeArrival());
         flightDtoResponse.setTimeDeparture(flight.getTimeDeparture());
         List<Integer> tickets = new ArrayList<>();
-        for (Ticket ticket : flight.getTickets()){
-            tickets.add(ticket.getCost());
-        }
+        tickets.add(ticketRepo.findByCategoryAndFlightOrderByIdAsc(Category.ECONOMY, flight).size());
+        tickets.add(ticketRepo.findByCategoryAndFlightOrderByIdAsc(Category.BUSINESS, flight).size());
+        tickets.add(ticketRepo.findByCategoryAndFlightOrderByIdAsc(Category.FIRST, flight).size());
         flightDtoResponse.setTickets(tickets);
         return flightDtoResponse;
     }

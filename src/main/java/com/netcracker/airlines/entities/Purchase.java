@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
@@ -16,22 +17,23 @@ public class Purchase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "ticket_id")
-    private Ticket ticket;
+    @ManyToMany
+    @JoinTable(
+            name = "purchase_details",
+            joinColumns = { @JoinColumn(name = "ticket_id") },
+            inverseJoinColumns = { @JoinColumn(name = "purchase_id") }
+    )
+    private List<Ticket> ticket;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    private Integer amount;
-
     private Integer cost;
 
-    public Purchase(Ticket ticket, User user, Integer amount, Integer cost) {
+    public Purchase(List<Ticket> ticket, User user, Integer cost) {
         this.ticket = ticket;
         this.user = user;
-        this.amount = amount;
         this.cost = cost;
     }
 }

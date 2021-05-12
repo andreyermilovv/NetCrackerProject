@@ -4,6 +4,7 @@ import com.netcracker.airlines.entities.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -38,7 +39,7 @@ public class Flight {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @OneToMany(mappedBy = "flight")
+    @OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
     private List<Ticket> tickets;
 
     public Flight(Airport departure,

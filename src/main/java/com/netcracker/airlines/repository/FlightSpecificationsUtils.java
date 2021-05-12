@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import javax.persistence.criteria.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -37,10 +38,6 @@ public class FlightSpecificationsUtils {
                 criteriaBuilder.like(root.get("destination").get("city"), city + "%");
     }
 
-    public static Specification<Flight> flightMinCost(Integer cost) {
-        return (Specification<Flight>) (root, query, cb) -> cb.lessThan(root.get("ticket").get("cost"), cost);
-    }
-
     public static Specification<Flight> flightDate(LocalDate date) {
         return (Specification<Flight>) (root, query, cb) -> {
             Path<LocalDateTime> flightDate = root.get("timeDeparture");
@@ -51,7 +48,10 @@ public class FlightSpecificationsUtils {
         };
     }
 
-    public static Specification<Flight> flightStatus(Status status) {
-        return (Specification<Flight>) (root, query, cb) -> cb.equal(root.get("status"), status);
+    public static Specification<Flight> flightStatus(Collection<Status> statuses) {
+        return (Specification<Flight>) (root, query, cb) ->
+                cb.or(statuses.stream()
+                        .map(status -> cb.equal(root.get("status"), status))
+                        .toArray(Predicate[]::new));
     }
 }

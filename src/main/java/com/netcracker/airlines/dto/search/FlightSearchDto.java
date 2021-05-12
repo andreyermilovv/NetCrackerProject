@@ -20,4 +20,6 @@ public class FlightSearchDto {
     private String destinationCity;
 
     private LocalDate date;
+
+    private Integer cost;
 }

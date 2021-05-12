@@ -41,9 +41,10 @@ public class FlightRestController {
                                           @RequestParam(required = false) String departureCity,
                                           @RequestParam(required = false) String destinationCountry,
                                           @RequestParam(required = false) String destinationCity,
-                                          @RequestParam(required = false) LocalDate date) {
+                                          @RequestParam(required = false) LocalDate date,
+                                          @RequestParam(required = false) Integer cost) {
 
-        return flightService.search(flightMapper.toSearchDto(departureCountry, departureCity, destinationCountry, destinationCity, date));
+        return flightService.search(flightMapper.toSearchDto(departureCountry, departureCity, destinationCountry, destinationCity, date, cost));
     }
 
     @PutMapping("{id}")

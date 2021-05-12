@@ -5,7 +5,9 @@ import com.netcracker.airlines.dto.TicketEditDto;
 import com.netcracker.airlines.entities.Airplane;
 import com.netcracker.airlines.entities.Flight;
 import com.netcracker.airlines.entities.Ticket;
+import com.netcracker.airlines.entities.enums.Category;
 import com.netcracker.airlines.mapper.TicketMapper;
+import com.netcracker.airlines.repository.FlightRepo;
 import com.netcracker.airlines.repository.TicketRepo;
 import com.netcracker.airlines.service.TicketService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,8 @@ import java.util.List;
 public class TicketServiceImpl implements TicketService {
 
     private final TicketRepo ticketRepo;
+
+    private final FlightRepo flightRepo;
 
     private final TicketMapper ticketMapper;
 
@@ -38,10 +42,11 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public void save(TicketDto ticketDto) {
-        Ticket ticket = ticketMapper.toCreate(ticketDto);
-        checkMaxCapacity(ticket);
-        if (ticketRepo.findByCategoryAndFlight(ticket.getCategory(), ticket.getFlight())!=null) throw new IllegalArgumentException("There is already tickets with selected category");
-        ticketRepo.save(ticket);
+        List<Ticket> ticket = ticketMapper.toCreate(ticketDto);
+        checkMaxCapacity(ticket.size(), flightRepo.getOne(ticketDto.getFlight()).getAirplane(), ticketDto.getCategory());
+        if (ticketRepo.findByCategoryAndFlightOrderByIdAsc(ticketDto.getCategory(), flightRepo.getOne(ticketDto.getFlight())) != null)
+            throw new IllegalArgumentException("There is already tickets with selected category");
+        ticketRepo.saveAll(ticket);
     }
 
     @Override
@@ -53,21 +58,28 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public void edit(Long id, TicketEditDto ticket) {
         Ticket edited = ticketMapper.toEdit(ticket, getOne(id));
-        checkMaxCapacity(edited);
+        checkMaxCapacity(ticket.getSeats(), edited.getFlight().getAirplane(), edited.getCategory());
         ticketRepo.save(edited);
     }
 
-    private void checkMaxCapacity(Ticket ticket){
-        Airplane airplane = ticket.getFlight().getAirplane();
-        switch (ticket.getCategory()){
+    @Override
+    public List<Ticket> findByFlightAndCategory(Flight flight, Category category) {
+        return ticketRepo.findByCategoryAndFlightOrderByIdAsc(category, flight);
+    }
+
+    private void checkMaxCapacity(int seats, Airplane airplane, Category category) {
+        switch (category) {
             case ECONOMY -> {
-                if (ticket.getSeats() > airplane.getEconomic()) throw new IllegalArgumentException("Number of seats can't be more than maximum capacity");
+                if (seats > airplane.getEconomic())
+                    throw new IllegalArgumentException("Number of seats can't be more than maximum capacity");
             }
             case BUSINESS -> {
-                if (ticket.getSeats() > airplane.getBusiness()) throw new IllegalArgumentException("Number of seats can't be more than maximum capacity");
+                if (seats > airplane.getBusiness())
+                    throw new IllegalArgumentException("Number of seats can't be more than maximum capacity");
             }
             case FIRST -> {
-                if (ticket.getSeats() > airplane.getFirst()) throw new IllegalArgumentException("Number of seats can't be more than maximum capacity");
+                if (seats > airplane.getFirst())
+                    throw new IllegalArgumentException("Number of seats can't be more than maximum capacity");
             }
         }
     }

@@ -15,12 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class FlightEditDto {
 
-    @Future(message = "Date can't be past")
-    private LocalDate date;
-
-
     private LocalDateTime timeDeparture;
-
 
     private LocalDateTime timeArrival;
 
