@@ -8,17 +8,24 @@ import com.netcracker.airlines.repository.FlightRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class TicketMapper {
 
     private final FlightRepo flightRepo;
 
-    public Ticket toCreate(TicketDto ticketDto){
-        return new Ticket(flightRepo.getOne(ticketDto.getFlight()), ticketDto.getCategory(), ticketDto.getSeats(), ticketDto.getCost());
+    public List<Ticket> toCreate(TicketDto ticketDto) {
+        List<Ticket> res = new ArrayList<>();
+        for (int i = 0; i < ticketDto.getSeats(); i++) {
+            res.add(new Ticket(flightRepo.getOne(ticketDto.getFlight()), ticketDto.getCategory(), i, ticketDto.getCost(), true));
+        }
+        return res;
     }
 
-    public Ticket toEdit(TicketEditDto ticketEditDto, Ticket target){
+    public Ticket toEdit(TicketEditDto ticketEditDto, Ticket target) {
         target.setCost(ticketEditDto.getCost());
         target.setSeats(ticketEditDto.getSeats());
         return target;

@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Base64;
 
 @Entity
 @Data
@@ -29,10 +28,13 @@ public class Ticket {
 
     private Integer cost;
 
-    public Ticket(Flight flight, Category category, Integer seats, Integer cost) {
+    private Boolean available;
+
+    public Ticket(Flight flight, Category category, Integer seats, Integer cost, Boolean available) {
         this.flight = flight;
         this.category = category;
         this.seats = seats;
         this.cost = cost;
+        this.available = available;
     }
 }

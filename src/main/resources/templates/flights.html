@@ -1,15 +1,28 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Flights</title>
     <link th:href="@{//webjars/chosen/chosen.css}" type="text/css" rel="stylesheet">
+    <link rel='stylesheet' href='/webjars/bootstrap/css/bootstrap.min.css'>
 </head>
 <body>
-<h2>Airports</h2>
+<h2>Flights</h2>
 <a href="/">
     <button>Back</button>
 </a>
+<div class="input-group input-group-lg">
+    <div class="input-group-prepend">
+        <span class="input-group-text">Search criteria</span>
+    </div>
+    <input placeholder="Departure city" id="searchDepCity" class="form-control"/>
+    <input placeholder="Departure country" id="searchDepCountry" class="form-control"/>
+    <input placeholder="Destination city" id="searchDesCity" class="form-control"/>
+    <input placeholder="Destination country" id="searchDesCountry" class="form-control"/>
+    <input placeholder="Minimal cost" id="searchCost" class="form-control"/>
+    <input placeholder="Date" id="day" type="date" class="form-control"/>
+</div>
+<button onclick="search()">Search</button>
 <p th:text="${message}" th:if="${message != null}"></p>
 <select data-placeholder="Choose a type..." class="chosen-select" id="status" onchange="filter()" name="status">
     <option value="">All</option>
@@ -17,61 +30,27 @@
     <option value="PAST">Past</option>
     <option value="CANCELLED">Cancelled</option>
 </select>
-<table border="1" cellspacing="0" cellpadding="5" class="flights">
-    <thead>
-    <tr>
-        <th>Name of departure airport</th>
-        <th>Country</th>
-        <th>City</th>
-        <th>Name of destination airport</th>
-        <th>Country</th>
-        <th>City</th>
-        <th>Airplane</th>
-        <th>Date</th>
-        <th>Departure time</th>
-        <th>Arrival time</th>
-        <th>Status</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="flight : ${flights}">
-        <td>
-            <input th:text="${flight?.departure?.name}" th:value="${flight.departure.id}"
-                   th:id="@{'departure_' + ${flight.id}}" disabled>
-        </td>
-        <td th:text="${flight?.departure?.country}"></td>
-        <td th:text="${flight?.departure?.city}"></td>
-        <td>
-            <input th:text="${flight?.destination?.name}" th:value="${flight.destination.id}"
-                   th:id="@{'destination_' + ${flight.id}}" disabled>
-        </td>
-        <td th:text="${flight?.destination?.country}"></td>
-        <td th:text="${flight?.destination?.city}"></td>
-        <td>
-            <p th:text="${flight?.airplane?.name}"></p>
-        </td>
-        <td>
-            <input th:value="${flight.date}" th:id="@{'date_' + ${flight.id}}"/>
-        </td>
-        <td>
-            <input th:value="${flight.timeDeparture}" th:id="@{'timeDeparture_' + ${flight.id}}"/>
-        </td>
-        <td>
-            <input th:value="${flight.timeArrival}" th:id="@{'timeArrival_' + ${flight.id}}"/>
-        </td>
-        <td>
-            <input th:value="${flight?.status}" th:id="@{'status_' + ${flight.id}}" disabled>
-        </td>
-        <th:block sec:authorize="hasRole('ADMIN')">
-            <td th:if="${flight.status.name().equals('UPCOMING')}">
-                <span><button id="cancel" th:onclick="deleteFlight([[${flight.id}]])">Cancel</button></span>
-            </td>
-            <td><span> <button id="edit" th:onclick="editFlight([[${flight.id}]])">Edit</button> </span></td>
-        </th:block>
-        <td><span> <a th:href="@{'flights/' + ${flight.id} + '/tickets'}">Tickets</a> </span></td>
-    </tr>
-    </tbody>
-</table>
+<div id="flights">
+    <div class="card mb-5" th:each="flight : ${flights}">
+        <div class="card-body">
+            <div style="display:flex">
+                <h3 class="card-text" th:text="${flight.departure.country}"></h3>
+                <h3 class="card-text" style="margin-left:auto" th:text="${flight.destination.country}"></h3>
+            </div>
+            <div style="display:flex">
+                <h6 class="card-text" th:text="${flight.departure.city}"></h6>
+                <h6 class="card-title" style="margin-left:auto" th:text="${flight.destination.city}"></h6>
+            </div>
+            <div style="display:flex">
+                <h6 th:text="${flight.timeArrival}"></h6>
+                <h6 style="margin-left:auto" th:text="${flight.timeDeparture}"></h6>
+            </div>
+            <h5 th:text="@{'Tickets left: ' + ${flight.tickets.size()}}"></h5>
+            <button id="cancel" th:onclick="deleteFlight([[${flight.id}]])" sec:authorize="hasRole('ADMIN')">Cancel</button>
+        </div>
+        <a th:href="@{'flights/' + ${flight.id} + '/tickets'}">Tickets</a>
+    </div>
+</div>
 <script th:src="@{//webjars/jquery/jquery.min.js}"></script>
 <script th:src="@{//webjars/chosen/chosen.jquery.js}"></script>
 <script th:src="@{//webjars/chosen/chosen.proto.js}"></script>
@@ -94,8 +73,7 @@
             url: `/api/flights/${id}`,
             contentType: "application/json",
             dataType: "json",
-            data: JSON.stringify({date: document.getElementById(`date_${id}`).value,
-                                timeDeparture: document.getElementById(`timeDeparture_${id}`).value,
+            data: JSON.stringify({timeDeparture: document.getElementById(`timeDeparture_${id}`).value,
                                 timeArrival: document.getElementById(`timeArrival_${id}`).value,
                                 status: document.getElementById(`status_${id}`).value}),
             error: function (xhr) {
@@ -107,6 +85,52 @@
         });
     }
 
+
+    function search() {
+        let dString = document.getElementById(`day`).value;
+        var d = new Date(dString);
+        if (dString.length == 0) date = null;
+        else {
+            var date =
+            ("0" + d.getDate()).slice(-2) + "." +
+            ("0" + (d.getMonth() + 1)).slice(-2) + "." +
+            d.getFullYear();
+        }
+        $.ajax({
+            type: "GET",
+            url: `/api/flights/filter`,
+            data: {
+                    departureCountry: document.getElementById(`searchDepCountry`).value,
+                    departureCity: document.getElementById(`searchDepCity`).value,
+                    destinationCountry: document.getElementById(`searchDesCountry`).value,
+                    destinationCity: document.getElementById(`searchDesCity`).value,
+                    cost: document.getElementById(`searchCost`).value,
+                    date: date
+            },
+            complete: function (response) {
+                let data = JSON.parse(response.responseText);
+                let table = "";
+                for (elem of data) {
+                    table += '<div class="card-body"><div style="display:flex">';
+                    table += '<h3 class="card-text">' + elem.departure.country + '</h3>';
+                    table += '<h3 class="card-text" style="margin-left:auto">' + elem.destination.country + '</h3>';
+                    table += '</div><div style="display:flex">';
+                    table += '<h6 class="card-text">' + elem.departure.city + '</h3>';
+                    table += '<h6 class="card-text" style="margin-left:auto">' + elem.destination.city + '</h3>';
+                    table += '</div><div style="display:flex">';
+                    table += '<h6>' + elem.timeDeparture + '</h3>';
+                    table += '<h6 style="margin-left:auto">' + elem.timeArrival + '</h3></div>';
+                    for (ticket of elem.tickets){
+                        table += '<h5>Tickets left: ' + ticket +'</h5>';
+                    }
+                    table += '</div><a href="flights/' + elem.id + '/tickets">Tickets</a>';
+                }
+                if (table.length == 0) table += "Nothing found";
+                console.log(table);
+                $("#flights").html(table);
+            }
+        });
+    }
 
 
 
@@ -135,7 +159,7 @@
                     table += '<td>' + elem.destination.name + '</td>';
                     table += '<td>' + elem.destination.country + '</td>';
                     table += '<td>' + elem.destination.city + '</td>';
-                    table += '<td>' + elem.date + '</td>';
+                    table += '<td>' + elem.airplane.name + '</td>';
                     table += '<td>' + elem.timeDeparture + '</td>';
                     table += '<td>' + elem.timeArrival + '</td>';
                 }
@@ -145,8 +169,6 @@
             }
         });
     }
-
-
 </script>
 </body>
 </html>

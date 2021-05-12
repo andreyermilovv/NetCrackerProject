@@ -11,5 +11,5 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 
     List<Ticket> findByFlight(Flight flight);
 
-    Ticket findByCategoryAndFlight(Category category, Flight flight);
+    List<Ticket> findByCategoryAndFlightOrderByIdAsc(Category category, Flight flight);
 }

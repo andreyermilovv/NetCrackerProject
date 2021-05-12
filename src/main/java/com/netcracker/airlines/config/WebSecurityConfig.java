@@ -28,7 +28,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers("/login", "/registration").permitAll()
-                .antMatchers("/flights/templates", "/airports", "/airplanes").hasRole(Role.ADMIN.name())
+                .antMatchers("/flights/templates", "/airports", "/airplanes", "/profile").hasRole(Role.ADMIN.name())
                 .and()
                 .formLogin()
                 .defaultSuccessUrl("/")

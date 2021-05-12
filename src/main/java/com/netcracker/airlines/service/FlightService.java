@@ -1,9 +1,7 @@
 package com.netcracker.airlines.service;
 
-import com.netcracker.airlines.dto.EditTemplateDto;
-import com.netcracker.airlines.dto.FlightDto;
-import com.netcracker.airlines.dto.FlightEditDto;
-import com.netcracker.airlines.dto.FlightTemplateDto;
+import com.netcracker.airlines.dto.*;
+import com.netcracker.airlines.dto.search.FlightSearchDto;
 import com.netcracker.airlines.entities.Flight;
 import com.netcracker.airlines.entities.enums.Status;
 
@@ -32,4 +30,6 @@ public interface FlightService {
     void editTemplate(Long id, EditTemplateDto editTemplateDto);
 
     void updateStatus();
+
+    List<FlightDtoResponse> search(FlightSearchDto flightSearchDto);
 }

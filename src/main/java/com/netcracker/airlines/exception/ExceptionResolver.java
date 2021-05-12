@@ -16,7 +16,7 @@ public class ExceptionResolver {
     }
 
     @ExceptionHandler({IllegalArgumentException.class})
-    public String illeagalArgument(Model model, DuplicateUserEmailException exception, HttpServletRequest req){
+    public String illegalArgument(Model model, DuplicateUserEmailException exception, HttpServletRequest req){
         model.addAttribute("message", exception.getMessage());
         return req.getRequestURI();
     }

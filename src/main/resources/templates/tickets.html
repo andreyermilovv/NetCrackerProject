@@ -4,10 +4,46 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link th:href="@{//webjars/chosen/chosen.css}" type="text/css" rel="stylesheet">
+    <link rel='stylesheet' href='/webjars/bootstrap/css/bootstrap.min.css'>
+    <style>
+        .form_radio_btn {
+	display: inline-block;
+	margin-right: 10px;
+}
+.form_radio_btn input[type=checkbox] {
+	display: none;
+}
+.form_radio_btn label {
+	display: inline-block;
+	cursor: pointer;
+	padding: 0px 15px;
+	line-height: 34px;
+	border: 1px solid #999;
+	border-radius: 6px;
+	user-select: none;
+}
+
+/* Checked */
+.form_radio_btn input[type=checkbox]:checked + label {
+	background: #ffe0a6;
+}
+
+/* Hover */
+.form_radio_btn label:hover {
+	color: #666;
+}
+
+/* Disabled */
+.form_radio_btn input[type=checkbox]:disabled + label {
+	background: #efefef;
+	color: #666;
+}
+
+    </style>
 </head>
 <body>
-<h2>Tickets</h2>
-<a href="/">
+<h2>Flight Info</h2>
+<a href="/flights">
     <button>Back</button>
 </a>
 <th:block sec:authorize="hasRole('ADMIN')">
@@ -18,35 +54,94 @@
     </select>
     <input placeholder="Seats" id="seats" type="number"/>
     <input placeholder="Cost" id="cost" type="number"/>
-    <button th:onclick="addTicket()">Add tickets</button>
+    <button th:onclick="addTickets()">Add tickets</button>
 </th:block>
-<table border="1" cellspacing="0" cellpadding="5">
-    <tbody>
-    <tr th:if="${tickets.empty}">
-        <td colspan="2">No tickets</td>
-    </tr>
-    <tr th:each="ticket : ${tickets}">
-        <td>
-            <input th:value="${ticket.seats}" th:id="@{'seats_' + ${ticket.id}}"/>
-            <input th:value="${ticket.cost}" th:id="@{'cost_' + ${ticket.id}}"/>
-            <input th:value="${ticket.category}" disabled/>
-            <th:block sec:authorize="hasRole('ADMIN')">
-                <button th:onclick="editTicket([[${ticket.id}]])">Edit</button>
-                <button id="button" th:onclick="deleteTicket([[${ticket.id}]])">Delete</button>
-            </th:block>
-        </td>
-    </tr>
-    </tbody>
-</table>
+<h2 th:text="@{'Departure country: ' + ${flight.departure.country}}"></h2>
+<h2 th:text="@{'Departure city: ' + ${flight.destination.country}}"></h2>
+<h3 th:text="@{'Destination country: ' + ${flight.departure.city}}"></h3>
+<h3 th:text="@{'Destination city: ' + ${flight.destination.city}}"></h3>
+<h4 th:text="@{'Departure time: ' + ${flight.timeDeparture}}"></h4>
+<h4 th:text="@{'Arrival time: ' + ${flight.timeArrival}}"></h4>
+<h4 th:text="@{'Airplane: ' + ${flight.airplane.name}}"></h4>
+<h5 th:text="@{'First class cost: ' + ${first.get(0).cost}}"></h5>
+<a class="btn btn-primary" data-toggle="collapse" href="#collapseFirst" role="button" aria-expanded="false"
+   aria-controls="collapseFirst">
+    First-class seats
+</a>
+<div class="collapse" id="collapseFirst">
+    <div th:each="i: ${#numbers.sequence(1, first.size()/5)}" style="display:flex">
+        <div class="form_radio_btn" th:each="j: ${#numbers.sequence((i-1)*5, (i-1)*5+4)}">
+            <input type="checkbox" th:disabled="${!first.get(j).available}"
+                   th:onclick="addTicket([[${first.get(j).id}]])" th:id="@{'first' + ${j+1}}"/>
+            <label th:for="@{'first' + ${j+1}}" th:text="${j+1}"></label>
+        </div>
+    </div>
+</div>
+<h5 th:text="@{'Business class cost: ' + ${business.get(0).cost}}"></h5>
+<a class="btn btn-primary" data-toggle="collapse" href="#collapseBusiness" role="button" aria-expanded="false"
+   aria-controls="collapseBusiness">
+    Business seats
+</a>
+<div class="collapse" id="collapseBusiness">
+    <div th:each="i: ${#numbers.sequence(1, business.size()/6)}" style="display:flex">
+        <div th:each="j: ${#numbers.sequence((i-1)*6, (i-1)*6+5)}" class="form_radio_btn">
+            <input type="checkbox" th:disabled="${!business.get(j).available}"
+                   th:onclick="addTicket([[${business.get(j).id}]])" th:id="@{'business' + ${j+1}}"/>
+            <label th:for="@{'business' + ${j+1}}" th:text="${j+1}"></label>
+        </div>
+    </div>
+</div>
+<h5 th:text="@{'Economic class cost: ' + ${economic.get(0).cost}}"></h5>
+<a class="btn btn-primary" data-toggle="collapse" href="#collapseEconomic" role="button" aria-expanded="false"
+   aria-controls="collapseEconomic">
+    Economic seats
+</a>
+<div class="collapse" id="collapseEconomic">
+    <div th:each="i: ${#numbers.sequence(1, economic.size()/8)}" style="display:flex">
+        <div class="form_radio_btn" th:each="j: ${#numbers.sequence((i-1)*8, (i-1)*8+7)}">
+            <input type="checkbox" th:disabled="${!economic.get(j).available}"
+                   th:onclick="addTicket([[${economic.get(j).id}]])" th:id="@{'economic' + ${j+1}}"/>
+            <label th:for="@{'economic' + ${j+1}}" th:text="${j+1}"></label>
+        </div>
+    </div>
+</div>
+<button th:onclick="buyTicket([[${flight.id}]])">Buy tickets</button>
 <script th:src="@{//webjars/jquery/jquery.min.js}"></script>
 <script th:src="@{//webjars/chosen/chosen.jquery.js}"></script>
 <script th:src="@{//webjars/chosen/chosen.proto.js}"></script>
+<script th:src="@{//webjars/bootstrap/js/bootstrap.min.js}"></script>
 <script>
+
+var tickets = [];
+
+function addTicket(id) {
+    var pos = tickets.indexOf(id);
+    if (pos == -1) tickets.push(id);
+    else tickets.splice(pos, 1);
+    console.log(tickets);
+}
+
 function deleteTicket(id) {
         $.ajax({
             type: "DELETE",
             url: `/api/tickets/${id}`,
             dataType: "json",
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
+
+    function buyTicket(id) {
+        $.ajax({
+            type: "POST",
+            url: `/api/purchase/${id}`,
+            data: {
+                id: tickets.toString()
+            },
+            error: function (xhr) {
+                alert(xhr.responseJSON.message);
+            },
             complete: function () {
                 location.reload();
             }
@@ -59,7 +154,7 @@ function deleteTicket(id) {
             url: `/api/tickets/${id}`,
             contentType: "application/json",
             dataType: "json",
-            data: JSON.stringify({flight: [[${flight}]],
+            data: JSON.stringify({flight: [[${flight.id}]],
                                     seats: document.getElementById(`seats_${id}`).value,
                                     cost: document.getElementById(`cost_${id}`).value}),
             error: function (xhr) {
@@ -71,12 +166,12 @@ function deleteTicket(id) {
         });
     }
 
-    function addTicket() {
+    function addTickets() {
         $.ajax({
             type: "POST",
             url: `/api/tickets`,
             contentType: "application/json",
-            data: JSON.stringify({flight: [[${flight}]],
+            data: JSON.stringify({flight: [[${flight.id}]],
                                     seats: document.getElementById(`seats`).value,
                                     cost: document.getElementById(`cost`).value,
                                     category: document.getElementById(`category`).value}),
@@ -93,6 +188,15 @@ function deleteTicket(id) {
             width: "20%",
             no_results_text: "Oops, nothing found!"
     })
+
+
+
+
+
+
+
+
+
 
 
 </script>

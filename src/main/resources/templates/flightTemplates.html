@@ -21,9 +21,13 @@
     <option th:each="airport : ${airports}" th:value="${airport.id}"
             th:text="${airport.name}"></option>
 </select>
-<input placeholder="Date" name="date" id="date" type="date"/>
-<input placeholder="Time departure" name="timeDeparture" id="timeDeparture" type="time"/>
-<input placeholder="Time arrival" name="timeArrival" id="timeArrival" type="time"/>
+<select data-placeholder="Choose an airplane..."
+        id="airplane">
+    <option th:each="airplane : ${airplanes}" th:value="${airplane.id}"
+            th:text="${airplane.name}"></option>
+</select>
+<input placeholder="Time departure" name="timeDeparture" id="timeDeparture" type="datetime-local"/>
+<input placeholder="Time arrival" name="timeArrival" id="timeArrival" type="datetime-local"/>
 <button th:onclick="addFlight()">Create template</button>
 <table border="1" cellspacing="0" cellpadding="5" class="flights">
     <thead>
@@ -35,7 +39,6 @@
         <th>Country</th>
         <th>City</th>
         <th>Airplane</th>
-        <th>Date</th>
         <th>Departure time</th>
         <th>Arrival time</th>
         <th>Economic cost</th>
@@ -64,29 +67,25 @@
         <td th:text="${flight?.destination?.country}" th:class="@{'descountry_' + ${flight.id}}"></td>
         <td th:text="${flight?.destination?.city}" th:class="@{'descity_' + ${flight.id}}"></td>
         <td>
-            <select data-placeholder="Choose an airplane..."
-                    th:id="@{'airplane_' + ${flight.id}}" th:onchange="getAirplane([[${flight.airplane.id}]])">
+            <select data-placeholder="Choose an airplane..." th:id="@{'airplane_' + ${flight.id}}">
                 <option th:each="airplane : ${airplanes}" th:value="${airplane.id}"
                         th:text="${airplane.name}" th:selected="${airplane} == ${flight.airplane}"></option>
             </select>
         </td>
         <td>
-            <input th:value="${flight.date}" th:id="@{'date_' + ${flight.id}}"/>
+            <input th:value="${flight.timeDeparture}" th:id="@{'timeDeparture_' + ${flight.id}}" type="datetime-local"/>
         </td>
         <td>
-            <input th:value="${flight.timeDeparture}" th:id="@{'timeDeparture_' + ${flight.id}}"/>
+            <input th:value="${flight.timeArrival}" th:id="@{'timeArrival_' + ${flight.id}}" type="datetime-local"/>
         </td>
         <td>
-            <input th:value="${flight.timeArrival}" th:id="@{'timeArrival_' + ${flight.id}}"/>
+            <input th:id="@{'economic_' + ${flight.id}}" type="number">
         </td>
         <td>
-            <input th:id="@{'economic_' + ${flight.id}}">
+            <input th:id="@{'business_' + ${flight.id}}" type="number">
         </td>
         <td>
-            <input th:id="@{'busyness_' + ${flight.id}}">
-        </td>
-        <td>
-            <input th:id="@{'first_' + ${flight.id}}">
+            <input th:id="@{'first_' + ${flight.id}}" type="number">
         </td>
         <td><span> <button id="confirm" th:onclick="confirmFlight([[${flight.id}]])">Confirm</button></span>
         </td>
@@ -120,7 +119,6 @@
             dataType: "json",
             data: JSON.stringify({departure: document.getElementById(`departure_${id}`).value,
                                     destination: document.getElementById(`destination_${id}`).value,
-                                   date: document.getElementById(`date_${id}`).value,
                                    airplane: document.getElementById(`airplane_${id}`).value,
                                 timeDeparture: document.getElementById(`timeDeparture_${id}`).value,
                                 timeArrival: document.getElementById(`timeArrival_${id}`).value}),
@@ -141,12 +139,11 @@
             data: JSON.stringify({id: id,
                                     departure: document.getElementById(`departure_${id}`).value,
                                     destination: document.getElementById(`destination_${id}`).value,
-                                    date: document.getElementById(`date_${id}`).value,
                                     airplane: document.getElementById(`airplane_${id}`).value,
                                     timeDeparture: document.getElementById(`timeDeparture_${id}`).value,
                                     timeArrival: document.getElementById(`timeArrival_${id}`).value,
                                     economic: document.getElementById(`economic_${id}`).value,
-                                    busyness: document.getElementById(`busyness_${id}`).value,
+                                    business: document.getElementById(`business_${id}`).value,
                                     first: document.getElementById(`first_${id}`).value}),
             error: function (xhr) {
                 alert(xhr.responseJSON.message);
@@ -162,9 +159,8 @@
             url: `/api/templates`,
             contentType: "application/json",
             data: JSON.stringify({departure: document.getElementById(`departure`).value,
-                                    airplane: document.getElementById(`airplane_${id}`).value,
+                                    airplane: document.getElementById(`airplane`).value,
                                     destination: document.getElementById(`destination`).value,
-                                    date: document.getElementById(`date`).value,
                                     timeDeparture: document.getElementById(`timeDeparture`).value,
                                     timeArrival: document.getElementById(`timeArrival`).value}),
             error: function (xhr) {

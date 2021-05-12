@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -19,11 +19,9 @@ public class EditTemplateDto {
     @NotNull(message = "Destination can't be null")
     private Long destination;
 
-    private LocalDate date;
+    private LocalDateTime timeDeparture;
 
-    private LocalTime timeDeparture;
-
-    private LocalTime timeArrival;
+    private LocalDateTime timeArrival;
 
     private Long airplane;
 }

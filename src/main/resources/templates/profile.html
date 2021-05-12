@@ -2,18 +2,164 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <link rel='stylesheet' href='/webjars/bootstrap/css/bootstrap.min.css'>
+    <title>Profile</title>
 </head>
 <body>
-<h2>Home page</h2>
 <a th:if="${user != null}" href="/logout">
     <button>Logout</button>
 </a>
-<div th:if="${user != null}" th:inline="text">
-    <p>Email: [[${user?.email}]]</p>
-    <p>First name: [[${user?.name}]]</p>
-    <p>Last name: [[${user?.surname}]]</p>
-    <p>Role: [[${user?.role}]]</p>
+<div th:if="${user != null}" style="display:flex">
+    <div style="margin-right:100px">
+        <p>Account info</p>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input th:value="${user?.email}" id="email"/>
+        </div>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input th:value="${profile?.name}" id="name"/>
+        </div>
+        <div class="form-group">
+            <label for="surname">Surname</label>
+            <input th:value="${profile?.surname}" id="surname"/>
+        </div>
+        <div class="form-group">
+            <label for="password">Change password</label>
+            <input id="password"/>
+        </div>
+        <div class="form-group">
+            <button onclick="changeName()">Apply changes</button>
+        </div>
+        <p>Role: [[${user?.role}]]</p>
+        <p>Money: [[${profile?.money}]]</p>
+        <input placeholder="Money" id="money" type="number"/>
+        <button onclick="addMoney()">Add money</button>
+    </div>
+    <div>
+        <p>Account settings</p>
+            <div class="form-group">
+                <label for="passport">Passport number</label>
+                <input placeholder="Passport Data" th:value="${profile?.passportData}" id="passport" type="text"/>
+            </div>
+            <div class="form-group">
+                <label for="birth">Date of Birth</label>
+                <input placeholder="Date of Birth" th:value="${profile?.dateOfBirth}" id="birth" type="date"/>
+            </div>
+            <div class="form-group">
+                <input type="checkbox" id="use" th:checked="${profile.usePersonalData}">
+                <label class="form-check-label" for="use">Use data for purchases</label>
+            </div>
+            <div class="form-group">
+                <button onclick="changeData()">Apply changes</button>
+            </div>
+    </div>
 </div>
+<div id="statistic" style="display:flex">
+    Account stats
+    <div style="margin-right:100px">
+        <h3>All flights</h3>
+        <h4 th:text="${purchases.size()}"></h4>
+    </div>
+    <div>
+        <h3>Money spent</h3>
+        <h4 th:text="${allCost}"></h4>
+    </div>
+</div>
+<div id="purchases">
+    <div class="card mb-5" th:each="purchase : ${purchases}">
+        <div class="card-body">
+            <div style="display:flex">
+                <h3 class="card-text" th:text="${purchase.ticket.get(0).flight.departure.country}"></h3>
+                <h3 class="card-text" style="margin-left:auto"
+                    th:text="${purchase.ticket.get(0).flight.destination.country}"></h3>
+            </div>
+            <div style="display:flex">
+                <h6 class="card-text" th:text="${purchase.ticket.get(0).flight.departure.city}"></h6>
+                <h6 class="card-title" style="margin-left:auto"
+                    th:text="${purchase.ticket.get(0).flight.destination.city}"></h6>
+            </div>
+            <div style="display:flex">
+                <h6 th:text="${purchase.ticket.get(0).flight.timeArrival}"></h6>
+                <h6 style="margin-left:auto" th:text="${purchase.ticket.get(0).flight.timeDeparture}"></h6>
+            </div>
+            <div th:text="@{'Cost: ' + ${purchase.cost}}"></div>
+        </div>
+    </div>
+</div>
+<script th:src="@{//webjars/jquery/jquery.min.js}"></script>
+<script>
+    function addMoney() {
+        $.ajax({
+            type: "PUT",
+            url: `/api/purchase`,
+            data: {
+                money: $("#money").val()
+            },
+            complete: function () {
+                location.reload();
+            }
+        });
+    }
+
+    function changeData() {
+        let dString = document.getElementById(`birth`).value;
+        var d = new Date(dString);
+        if (dString.length == 0) date = null;
+        else {
+            var date =
+            ("0" + d.getDate()).slice(-2) + "/" +
+            ("0" + (d.getMonth() + 1)).slice(-2) + "/" +
+            d.getFullYear();
+        }
+        $.ajax({
+            type: "PUT",
+            url: `/api/users/[[${user.id}]]`,
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({dateOfBirth: date,
+                                    passportData: document.getElementById(`passport`).value,
+                                    usePersonalData: $("#use").prop("checked")}),
+            error: function (xhr) {
+                alert(xhr.responseJSON.message);
+            },
+            success: function () {
+               alert("OK");
+            }
+        });
+    }
+
+    function changeName() {
+        let password = '[[${user.password}]]';
+        if (document.getElementById(`password`).value.length > 0) password = document.getElementById(`password`).value
+        $.ajax({
+            type: "POST",
+            url: `/api/users/[[${user.id}]]`,
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({email: document.getElementById(`email`).value,
+                                    password: password,
+                                    name: document.getElementById(`name`).value,
+                                    surname: document.getElementById(`surname`).value}),
+            error: function (xhr) {
+                alert(xhr.responseJSON.message);
+            },
+            success: function () {
+               alert("OK");
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+</script>
 </body>
 </html>
